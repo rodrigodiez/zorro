@@ -1,4 +1,4 @@
-// Package Zorro contains interfaces and concrete implementations
+// Package zorro contains interfaces and concrete implementations
 // to manage Zorro.
 package zorro
 
