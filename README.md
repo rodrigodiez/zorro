@@ -52,6 +52,10 @@ curl http://localhost:8080/unmask/695bcafd-2fa4-4743-b30a-b42cf853fcd3
 - [MySQL](https://www.mysql.com/) (to-do)
 
 ## Contributing
+If you want to contribute to the development of Zorro you are more than welcome!
+
+- Fixes: Go ahead and create a PR! :D
+- Enhancements: Have a look to the [open issues](https://github.com/rodrigodiez/zorro/issues). If your enhancement does not fit any of the existing ones please create a new issue and describe your use case so we can discuss how to make it real! :D
 
 ## License
 Zorro is free software license under the [MIT License](https://choosealicense.com/licenses/mit/) terms and conditions.
