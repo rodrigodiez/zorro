@@ -6,8 +6,6 @@ go:
 
 before_install:
   - go get -u github.com/golang/dep/cmd/dep
-  - go get -u github.com/vektra/mockery/.../
 
 install:
-  - mockery --all
   - dep ensure
