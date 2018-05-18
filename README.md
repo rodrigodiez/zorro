@@ -31,6 +31,12 @@ curl http://localhost:8080/unmask/695bcafd-2fa4-4743-b30a-b42cf853fcd3
 ## Documentation
 - [Godoc](https://godoc.org/github.com/rodrigodiez/zorro)
 
+## Operations
+- Mask
+- Unmask
+- BatchMask (to-do)
+- BatchUnmask (to-do)
+
 ## Servers
 > Developers can create their own servers
 
