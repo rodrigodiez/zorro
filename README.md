@@ -58,4 +58,4 @@ If you want to contribute to the development of Zorro you are more than welcome!
 - Enhancements: Have a look to the [open issues](https://github.com/rodrigodiez/zorro/issues). If your enhancement does not fit any of the existing ones please create a new issue and describe your use case so we can discuss how to make it real! :D
 
 ## License
-Zorro is free software license under the [MIT License](https://choosealicense.com/licenses/mit/) terms and conditions.
+Zorro is free software and it is distributed under the terms and conditions of the [MIT License](https://choosealicense.com/licenses/mit/).
