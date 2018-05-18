@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func ExampleStorage_other() {
+func ExampleNewInMemoryStorage_other() {
 	mem := NewInMemoryStorage()
 
 	mem.LoadOrStore("foo", "bar")
