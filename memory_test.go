@@ -1,4 +1,4 @@
-package storage
+package zorro
 
 import (
 	"testing"
@@ -7,11 +7,11 @@ import (
 )
 
 func TestImplementsStorage(t *testing.T) {
-	var _ Storage = NewMem()
+	var _ Storage = NewInMemoryStorage()
 }
 
 func TestLoadOrStoreReTestturnsMaskAndFalseIfIdDoesNotExist(t *testing.T) {
-	mem := NewMem()
+	mem := NewInMemoryStorage()
 
 	mask, loaded := mem.LoadOrStore("foo", "bar")
 
@@ -20,7 +20,7 @@ func TestLoadOrStoreReTestturnsMaskAndFalseIfIdDoesNotExist(t *testing.T) {
 }
 
 func TestLoadOrStoreReturnsActualMaskAndTrueIfKeyExists(t *testing.T) {
-	mem := NewMem()
+	mem := NewInMemoryStorage()
 
 	mem.LoadOrStore("foo", "bar")
 	mask, loaded := mem.LoadOrStore("foo", "baz")
@@ -44,7 +44,7 @@ func TestResolve(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			mem := NewMem()
+			mem := NewInMemoryStorage()
 
 			mem.LoadOrStore(tc.loadedID, tc.loadedMask)
 			id, ok := mem.Resolve(tc.mask)

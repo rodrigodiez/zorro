@@ -1,4 +1,4 @@
-package masker
+package zorro
 
 import (
 	"testing"
@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewReturnsMasker(t *testing.T) {
-	var _ Masker = New(&mocks.Generator{}, &mocks.Storage{})
+func TestNewReturnsZorro(t *testing.T) {
+	var _ Zorro = New(&mocks.Generator{}, &mocks.Storage{})
 }
 
 func TestMask(t *testing.T) {
@@ -28,12 +28,12 @@ func TestMask(t *testing.T) {
 			generator := &mocks.Generator{}
 			storage := &mocks.Storage{}
 
-			masker := New(generator, storage)
+			zorro := New(generator, storage)
 
 			generator.On("Generate", tc.key).Return(tc.value).Once()
 			storage.On("LoadOrStore", tc.key, tc.value).Return(tc.actual, tc.loaded).Once()
 
-			masked := masker.Mask(tc.key)
+			masked := zorro.Mask(tc.key)
 			assert.Equal(t, tc.actual, masked)
 
 			storage.AssertExpectations(t)
@@ -56,11 +56,11 @@ func TestUnmask(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			storage := &mocks.Storage{}
 
-			masker := New(&mocks.Generator{}, storage)
+			zorro := New(&mocks.Generator{}, storage)
 
 			storage.On("Resolve", tc.value).Return(tc.key, tc.ok).Once()
 
-			key, ok := masker.Unmask(tc.value)
+			key, ok := zorro.Unmask(tc.value)
 
 			assert.Equal(t, tc.key, key)
 			assert.Equal(t, tc.ok, ok)

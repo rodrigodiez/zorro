@@ -1,4 +1,4 @@
-package storage
+package zorro
 
 import (
 	"sync"
@@ -34,11 +34,11 @@ func (m *memory) Resolve(mask string) (id string, ok bool) {
 	return id, ok
 }
 
-// NewMem creates a new Storage that lives in memory.
+// NewInMemoryStorage creates a new Storage that lives in memory.
 //
 // This type of storage is intented for testing and demonstration purposes only.
 // Although the implementation is safe for concurrent use, it is not persisted.
-func NewMem() Storage {
+func NewInMemoryStorage() Storage {
 	return &memory{
 		mutex: &sync.Mutex{},
 		f:     make(map[string]string),

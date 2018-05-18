@@ -1,11 +1,11 @@
-package storage
+package zorro
 
 import (
 	"fmt"
 )
 
 func ExampleStorage_other() {
-	mem := NewMem()
+	mem := NewInMemoryStorage()
 
 	mem.LoadOrStore("foo", "bar")
 
@@ -27,8 +27,8 @@ func ExampleStorage_other() {
 	// Id for '42' could be resolved: false
 }
 
-func ExampleNewMem() {
-	mem := NewMem()
+func ExampleNewInMemoryStorage() {
+	mem := NewInMemoryStorage()
 
 	mem.LoadOrStore("foo", "bar")
 	id, _ := mem.Resolve("bar")

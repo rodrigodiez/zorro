@@ -1,4 +1,4 @@
-package storage
+package zorro
 
 import (
 	"math/rand"
@@ -6,7 +6,7 @@ import (
 )
 
 func BenchmarkSet(b *testing.B) {
-	mem := NewMem()
+	mem := NewInMemoryStorage()
 
 	for i := 0; i < b.N; i++ {
 		id := RandStringBytes(24)
@@ -17,7 +17,7 @@ func BenchmarkSet(b *testing.B) {
 }
 
 func BenchmarkSetParallel(b *testing.B) {
-	mem := NewMem()
+	mem := NewInMemoryStorage()
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {

@@ -1,6 +1,4 @@
-// Package storage contains interfaces and concrete implementations
-// to manage the storage and retrieval of ids and masks.
-package storage
+package zorro
 
 // Storage is the interface that wraps the methods to load, store and resolve
 // ids and masks.

@@ -1,4 +1,4 @@
-package generator
+package zorro
 
 import (
 	"testing"
@@ -7,11 +7,11 @@ import (
 )
 
 func TestImplementsGenerator(t *testing.T) {
-	var _ Generator = NewUUIDv4()
+	var _ Generator = NewUUIDv4Generator()
 }
 
 func TestGenerateReturnsRandomString(t *testing.T) {
-	gen := NewUUIDv4()
+	gen := NewUUIDv4Generator()
 
 	firstValue := gen.Generate("")
 	secondValue := gen.Generate("")
