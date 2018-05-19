@@ -15,7 +15,7 @@ type app struct {
 	z      zorro.Zorro
 }
 
-func (a *app) start() {
+func (a *app) run() {
 	log.Printf("Listening for connections on :%d", a.port)
 
 	a.router.HandleFunc("/mask/{id}", a.requestID(a.logger(a.maskHandler))).Methods("POST")

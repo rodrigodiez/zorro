@@ -44,7 +44,7 @@ curl -X POST http://localhost:8080/unmask/<mask>
 ## Servers
 > Developers can create their own servers
 
-- HTTP (in progress, demo available)
+- HTTP (available)
 - HTTPS (to-do)
 - [GRPC](https://grpc.io/) (to-do)
 - [Twirp](https://github.com/twitchtv/twirp) (to-do)
@@ -55,8 +55,8 @@ curl -X POST http://localhost:8080/unmask/<mask>
 
 ## Storage
 > Developers can create their own storages
-- In-Memory
-- [Bolt](https://github.com/boltdb/bolt) (to-do)
+- In-Memory (available)
+- [Bolt](https://github.com/boltdb/bolt) (available)
 - [DynamoDB](https://aws.amazon.com/dynamodb/) (to-do)
 - [Redis](https://redis.io/) (to-do)
 - [MySQL](https://www.mysql.com/) (to-do)

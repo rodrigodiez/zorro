@@ -16,6 +16,7 @@ type zorro struct {
 func (t *zorro) Mask(id string) (mask string) {
 
 	tmpMask := t.generator.Generate(id)
+
 	mask, _ = t.storage.LoadOrStore(id, tmpMask)
 
 	return mask
@@ -26,7 +27,7 @@ func (t *zorro) Unmask(mask string) (id string, ok bool) {
 	return t.storage.Resolve(mask)
 }
 
-// New creates a new Zorro. A Storage and Generator must be provided
+// New creates a new Zorro
 func New(g Generator, s Storage) Zorro {
 	return &zorro{
 		generator: g,

@@ -13,7 +13,7 @@ func ExampleNewInMemoryStorage_other() {
 	id, _ := mem.Resolve("bar")
 
 	fmt.Printf("Mask of 'foo' is '%s'\n", mask)
-	fmt.Printf("Mask of 'foo' was loaded from memory: %t\n", loaded)
+	fmt.Printf("Mask of 'foo' was loaded from storage: %t\n", loaded)
 	fmt.Printf("Id for 'bar' is '%s'\n", id)
 
 	_, ok := mem.Resolve("42")
@@ -22,7 +22,7 @@ func ExampleNewInMemoryStorage_other() {
 
 	// Output:
 	// Mask of 'foo' is 'bar'
-	// Mask of 'foo' was loaded from memory: true
+	// Mask of 'foo' was loaded from storage: true
 	// Id for 'bar' is 'foo'
 	// Id for '42' could be resolved: false
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestImplementsStorage(t *testing.T) {
+func TestMemoryImplementsStorage(t *testing.T) {
 	var _ Storage = NewInMemoryStorage()
 }
 
@@ -19,7 +19,7 @@ func TestLoadOrStoreReTestturnsMaskAndFalseIfIdDoesNotExist(t *testing.T) {
 	assert.Equal(t, false, loaded)
 }
 
-func TestLoadOrStoreReturnsActualMaskAndTrueIfKeyExists(t *testing.T) {
+func TestMemoryLoadOrStoreReturnsActualMaskAndTrueIfKeyExists(t *testing.T) {
 	mem := NewInMemoryStorage()
 
 	mem.LoadOrStore("foo", "bar")
@@ -29,7 +29,7 @@ func TestLoadOrStoreReturnsActualMaskAndTrueIfKeyExists(t *testing.T) {
 	assert.Equal(t, true, loaded)
 }
 
-func TestResolve(t *testing.T) {
+func TestMemoryResolve(t *testing.T) {
 	tt := []struct {
 		name       string
 		loadedID   string
