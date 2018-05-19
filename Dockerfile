@@ -10,12 +10,9 @@ RUN dep ensure
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -tags netgo -ldflags '-w' -o zorrohttp ./cmd/zorrohttp
 
-CMD ["./zorrohttp"]
-
 FROM alpine
-WORKDIR /root
-
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 
-COPY --from=builder /go/src/github.com/rodrigodiez/zorro/zorrohttp .
-CMD ["./zorrohttp"]
+COPY --from=builder /go/src/github.com/rodrigodiez/zorro/zorrohttp /zorrohttp
+EXPOSE 8080/tcp
+ENTRYPOINT [ "/zorrohttp" ]
