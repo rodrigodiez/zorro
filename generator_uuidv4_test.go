@@ -7,10 +7,13 @@ import (
 )
 
 func TestImplementsGenerator(t *testing.T) {
+	t.Parallel()
 	var _ Generator = NewUUIDv4Generator()
 }
 
 func TestGenerateReturnsRandomString(t *testing.T) {
+	t.Parallel()
+
 	gen := NewUUIDv4Generator()
 
 	firstValue := gen.Generate("")

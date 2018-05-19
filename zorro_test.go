@@ -8,10 +8,14 @@ import (
 )
 
 func TestNewReturnsZorro(t *testing.T) {
+	t.Parallel()
+
 	var _ Zorro = New(&mocks.Generator{}, &mocks.Storage{})
 }
 
 func TestMask(t *testing.T) {
+	t.Parallel()
+
 	tt := []struct {
 		name   string
 		key    string
@@ -42,6 +46,8 @@ func TestMask(t *testing.T) {
 }
 
 func TestUnmask(t *testing.T) {
+	t.Parallel()
+
 	tt := []struct {
 		name  string
 		key   string

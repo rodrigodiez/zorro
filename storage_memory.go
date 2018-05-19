@@ -5,7 +5,7 @@ import (
 )
 
 type memory struct {
-	mutex *sync.Mutex
+	mutex *sync.RWMutex
 	k     map[string]string
 	v     map[string]string
 }
@@ -26,8 +26,8 @@ func (m *memory) LoadOrStore(key string, value string) (actualValue string, load
 }
 
 func (m *memory) Resolve(value string) (key string, ok bool) {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
 
 	key, ok = m.v[value]
 
@@ -40,7 +40,7 @@ func (m *memory) Resolve(value string) (key string, ok bool) {
 // Although the implementation is safe for concurrent use, it is not persisted.
 func NewInMemoryStorage() Storage {
 	return &memory{
-		mutex: &sync.Mutex{},
+		mutex: &sync.RWMutex{},
 		k:     make(map[string]string),
 		v:     make(map[string]string),
 	}

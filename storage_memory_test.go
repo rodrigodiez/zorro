@@ -11,6 +11,8 @@ func TestMemoryImplementsStorage(t *testing.T) {
 }
 
 func TestLoadOrStoreReTestturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
+	t.Parallel()
+
 	mem := NewInMemoryStorage()
 
 	value, loaded := mem.LoadOrStore("foo", "bar")
@@ -20,6 +22,8 @@ func TestLoadOrStoreReTestturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
 }
 
 func TestMemoryLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
+	t.Parallel()
+
 	mem := NewInMemoryStorage()
 
 	mem.LoadOrStore("foo", "bar")
@@ -30,6 +34,8 @@ func TestMemoryLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 }
 
 func TestMemoryResolve(t *testing.T) {
+	t.Parallel()
+
 	tt := []struct {
 		name        string
 		loadedKey   string

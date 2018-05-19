@@ -12,6 +12,8 @@ import (
 func TestNewBoltImplementsStorageCloser(t *testing.T) {
 	var storage StorageCloser
 
+	t.Parallel()
+
 	path := getTmpPath()
 	defer os.Remove(path)
 
@@ -20,6 +22,8 @@ func TestNewBoltImplementsStorageCloser(t *testing.T) {
 }
 
 func TestNewBoltReturnsErrIfCantOpen(t *testing.T) {
+	t.Parallel()
+
 	storage, err := NewBoltDBStorage("/a/path/that/does/not/exist")
 
 	assert.Nil(t, storage)
@@ -31,6 +35,8 @@ func TestCloseClosesTheDB(t *testing.T) {
 }
 
 func TestNewBoltCreatesKeysAndValuesBuckets(t *testing.T) {
+	t.Parallel()
+
 	path := getTmpPath()
 	defer os.Remove(path)
 
@@ -52,6 +58,8 @@ func TestNewBoltCreatesKeysAndValuesBuckets(t *testing.T) {
 }
 
 func TestBoltLoadOrStoreReTestturnsValueAndFalseIfIdDoesNotExist(t *testing.T) {
+	t.Parallel()
+
 	path := getTmpPath()
 	defer os.Remove(path)
 
@@ -65,6 +73,8 @@ func TestBoltLoadOrStoreReTestturnsValueAndFalseIfIdDoesNotExist(t *testing.T) {
 }
 
 func TestBoltLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
+	t.Parallel()
+
 	path := getTmpPath()
 	defer os.Remove(path)
 
@@ -79,6 +89,8 @@ func TestBoltLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 }
 
 func TestBoltResolve(t *testing.T) {
+	t.Parallel()
+
 	tt := []struct {
 		name        string
 		loadedID    string
