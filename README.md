@@ -112,5 +112,20 @@ If you want to contribute to the development of Zorro you are more than welcome!
 - Fixes: Go ahead and create a PR! :D
 - Enhancements: Have a look to the [open issues](https://github.com/rodrigodiez/zorro/issues). If your enhancement does not fit any of the existing ones please create a new issue and describe your use case so we can discuss how to make it real! :D
 
+## About the author
+My name is Rodrigo Díez Villamuera. Above anything else I am a passionate maker
+
+I started Zorro as a way to increase my experience with Golang. High performance servers, cloud storage, concurrency... you name it!
+
+I am also available to hire as a contractor. I am specialised in
+
+- PHP/Go/Node development
+- AWS Solutions
+- Team leadership
+- Agile development
+
+If you need a hand or two... get in touch!
+[Linkedin](https://www.linkedin.com/in/rodrigodiezvillamuera/) | [rodrigodiez.io](http://rodrigodiez.io)
+
 ## License
 Zorro is free software and it is distributed under the terms and conditions of the [MIT License](https://choosealicense.com/licenses/mit/).
