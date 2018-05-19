@@ -10,7 +10,7 @@ Gopher by [@egonelbre](https://github.com/egonelbre/gophers)
 
 ---
 
-> **Important**: Zorro is under heavy development at the moment and under any circumstance its usage in production is recommended
+> **Important**: Zorro is under heavy development at the moment and its usage in production is **not** recommended
 
 ## Use cases
 - Services that expose object which IDs must be kept private
