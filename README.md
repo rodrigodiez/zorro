@@ -2,7 +2,7 @@
 
 ![build](https://travis-ci.org/rodrigodiez/zorro.svg?branch=master)
 
-Zorro is a microservice to mask and unmask IDs focused on speed, reliability and flexibility. 
+Zorro is a golang microservice and a package to mask and unmask IDs. 
 
 ![gopher](https://github.com/egonelbre/gophers/raw/master/.thumb/vector/superhero/standing.png)
 
@@ -17,19 +17,23 @@ Gopher by [@egonelbre](https://github.com/egonelbre/gophers)
 
 ## Run the demo
 > A `zorrohttp` binary will be installed in your `$GOPATH/bin`
-```
+
+```bash
+# Install Zorro
 go get -u github.com/rodrigodiez/zorro/cmd/zorrohttp
+
+# Run the http server
 zorrohttp --port 8080
 
-curl http://localhost:8080/mask/foo
-> 695bcafd-2fa4-4743-b30a-b42cf853fcd3
+# Mask an id
+curl -X POST http://localhost:8080/mask/<id>
 
-curl http://localhost:8080/unmask/695bcafd-2fa4-4743-b30a-b42cf853fcd3
-> foo
+# Unmask an id
+curl -X POST http://localhost:8080/unmask/<mask>
 ```
 
 ## Documentation
-- [Godoc](https://godoc.org/github.com/rodrigodiez/zorro)
+- [Godoc](https://godoc.org/github.com/rodrigodiez/zorro) documentation is available.
 
 ## Operations
 - Mask
