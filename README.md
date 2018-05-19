@@ -10,9 +10,9 @@ Zorro allows developers to perform two way key/value lookups.
 
 Zorro can be used with one of the provided servers or as a golang package for maximum flexibility.
 
-![gopher](https://github.com/egonelbre/gophers/raw/master/.thumb/vector/superhero/standing.png)
+[![gopher](https://github.com/egonelbre/gophers/raw/master/.thumb/vector/superhero/standing.png)](https://github.com/egonelbre/gophers)
 
-Gopher by [@egonelbre](https://github.com/egonelbre/gophers)
+by [@egonelbre](https://github.com/egonelbre/gophers)
 
 ---
 
