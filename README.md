@@ -22,8 +22,9 @@ Gopher by [@egonelbre](https://github.com/egonelbre/gophers)
 # Install Zorro
 go get -u github.com/rodrigodiez/zorro/cmd/zorrohttp
 
-# Run the http server
-zorrohttp --port 8080
+# Choose your toppings!
+zorrohttp --port 8080 --storage-driver memory
+zorrohttp --port 8080 --storage-driver boltdb -storage-path /tmp/elzorro.db
 
 # Mask an id
 curl -X POST http://localhost:8080/mask/<id>
