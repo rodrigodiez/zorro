@@ -10,46 +10,46 @@ func TestMemoryImplementsStorage(t *testing.T) {
 	var _ Storage = NewInMemoryStorage()
 }
 
-func TestLoadOrStoreReTestturnsMaskAndFalseIfIdDoesNotExist(t *testing.T) {
+func TestLoadOrStoreReTestturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
 	mem := NewInMemoryStorage()
 
-	mask, loaded := mem.LoadOrStore("foo", "bar")
+	value, loaded := mem.LoadOrStore("foo", "bar")
 
-	assert.Equal(t, "bar", mask)
+	assert.Equal(t, "bar", value)
 	assert.Equal(t, false, loaded)
 }
 
-func TestMemoryLoadOrStoreReturnsActualMaskAndTrueIfKeyExists(t *testing.T) {
+func TestMemoryLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 	mem := NewInMemoryStorage()
 
 	mem.LoadOrStore("foo", "bar")
-	mask, loaded := mem.LoadOrStore("foo", "baz")
+	value, loaded := mem.LoadOrStore("foo", "baz")
 
-	assert.Equal(t, "bar", mask)
+	assert.Equal(t, "bar", value)
 	assert.Equal(t, true, loaded)
 }
 
 func TestMemoryResolve(t *testing.T) {
 	tt := []struct {
-		name       string
-		loadedID   string
-		loadedMask string
-		mask       string
-		expectedID string
-		expectedOk bool
+		name        string
+		loadedKey   string
+		loadedValue string
+		value       string
+		expectedKey string
+		expectedOk  bool
 	}{
-		{name: "Id exists", loadedID: "foo", loadedMask: "bar", mask: "bar", expectedID: "foo", expectedOk: true},
-		{name: "Id does not exist", loadedID: "foo", loadedMask: "bar", mask: "baz", expectedID: "", expectedOk: false},
+		{name: "Key exists", loadedKey: "foo", loadedValue: "bar", value: "bar", expectedKey: "foo", expectedOk: true},
+		{name: "Key does not exist", loadedKey: "foo", loadedValue: "bar", value: "baz", expectedKey: "", expectedOk: false},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			mem := NewInMemoryStorage()
 
-			mem.LoadOrStore(tc.loadedID, tc.loadedMask)
-			id, ok := mem.Resolve(tc.mask)
+			mem.LoadOrStore(tc.loadedKey, tc.loadedValue)
+			key, ok := mem.Resolve(tc.value)
 
-			assert.Equal(t, tc.expectedID, id)
+			assert.Equal(t, tc.expectedKey, key)
 			assert.Equal(t, tc.expectedOk, ok)
 		})
 	}

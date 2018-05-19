@@ -6,8 +6,8 @@ import (
 
 type boltdb struct {
 	db          *bolt.DB
-	iBucketName []byte
-	mBucketName []byte
+	kBucketName []byte
+	vBucketName []byte
 }
 
 // NewBoltDBStorage creates and initialises a new StorageCloser persisted in Bolt.
@@ -18,11 +18,11 @@ func NewBoltDBStorage(path string) (StorageCloser, error) {
 		return nil, err
 	}
 
-	b := &boltdb{db: db, iBucketName: []byte("ids"), mBucketName: []byte("masks")}
+	b := &boltdb{db: db, kBucketName: []byte("keys"), vBucketName: []byte("values")}
 
 	db.Update(func(tx *bolt.Tx) error {
-		tx.CreateBucket(b.iBucketName)
-		tx.CreateBucket(b.mBucketName)
+		tx.CreateBucket(b.kBucketName)
+		tx.CreateBucket(b.vBucketName)
 
 		return nil
 	})
@@ -34,27 +34,27 @@ func (b *boltdb) Close() {
 	b.db.Close()
 }
 
-func (b *boltdb) LoadOrStore(id string, mask string) (actualMask string, loaded bool) {
+func (b *boltdb) LoadOrStore(key string, value string) (actualMask string, loaded bool) {
 
 	b.db.Update(func(tx *bolt.Tx) error {
-		iBucket := tx.Bucket(b.iBucketName)
-		mBucket := tx.Bucket(b.mBucketName)
+		iBucket := tx.Bucket(b.kBucketName)
+		mBucket := tx.Bucket(b.vBucketName)
 
-		maskBytes := iBucket.Get([]byte(id))
+		valueBytes := iBucket.Get([]byte(key))
 
-		if maskBytes == nil {
-			iBucket.Put([]byte(id), []byte(mask))
-			mBucket.Put([]byte(mask), []byte(id))
+		if valueBytes == nil {
+			iBucket.Put([]byte(key), []byte(value))
+			mBucket.Put([]byte(value), []byte(key))
 
-			actualMask = mask
+			actualMask = value
 			loaded = false
 
 			return nil
 		}
 
-		maskBytesCopy := make([]byte, len(maskBytes))
-		copy(maskBytesCopy, maskBytes)
-		actualMask = string(maskBytesCopy)
+		valueBytesCopy := make([]byte, len(valueBytes))
+		copy(valueBytesCopy, valueBytes)
+		actualMask = string(valueBytesCopy)
 		loaded = true
 
 		return nil
@@ -63,26 +63,26 @@ func (b *boltdb) LoadOrStore(id string, mask string) (actualMask string, loaded 
 	return actualMask, loaded
 }
 
-func (b *boltdb) Resolve(mask string) (id string, ok bool) {
+func (b *boltdb) Resolve(value string) (key string, ok bool) {
 	b.db.View(func(tx *bolt.Tx) error {
-		mBucket := tx.Bucket(b.mBucketName)
+		mBucket := tx.Bucket(b.vBucketName)
 
-		idBytes := mBucket.Get([]byte(mask))
+		keyBytes := mBucket.Get([]byte(value))
 
-		if idBytes == nil {
+		if keyBytes == nil {
 			ok = false
-			id = ""
+			key = ""
 
 			return nil
 		}
 
-		idBytesCopy := make([]byte, len(idBytes))
-		copy(idBytesCopy, idBytes)
-		id = string(idBytesCopy)
+		keyBytesCopy := make([]byte, len(keyBytes))
+		copy(keyBytesCopy, keyBytes)
+		key = string(keyBytesCopy)
 		ok = true
 
 		return nil
 	})
 
-	return id, ok
+	return key, ok
 }

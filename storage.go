@@ -1,14 +1,13 @@
 package zorro
 
 // Storage is the interface that wraps the methods to load, store and resolve
-// ids and masks.
+// keys and values.
 type Storage interface {
-	LoadOrStore(id string, mask string) (actualMask string, loaded bool)
-	Resolve(mask string) (id string, ok bool)
+	LoadOrStore(key string, value string) (actualValue string, loaded bool)
+	Resolve(value string) (key string, ok bool)
 }
 
-// StorageCloser is an interface for Storage that allows underlying resources
-// to be closed
+// StorageCloser is an interface for Storage that allows shut down of underlying resources
 type StorageCloser interface {
 	Storage
 	Close()

@@ -5,31 +5,31 @@ import (
 	"testing"
 )
 
-func BenchmarkSet(b *testing.B) {
-	mem := NewInMemoryStorage()
+func BenchmarkMemory(b *testing.B) {
+	storage := NewInMemoryStorage()
 
 	for i := 0; i < b.N; i++ {
-		id := RandStringBytes(24)
-		mask := RandStringBytes(24)
+		key := randStringBytes(24)
+		value := randStringBytes(24)
 
-		mem.LoadOrStore(id, mask)
+		storage.LoadOrStore(key, value)
 	}
 }
 
-func BenchmarkSetParallel(b *testing.B) {
-	mem := NewInMemoryStorage()
+func BenchmarkMemoryParallel(b *testing.B) {
+	storage := NewInMemoryStorage()
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			id := RandStringBytes(24)
-			mask := RandStringBytes(24)
+			key := randStringBytes(24)
+			value := randStringBytes(24)
 
-			mem.LoadOrStore(id, mask)
+			storage.LoadOrStore(key, value)
 		}
 	})
 }
 
-func RandStringBytes(n int) string {
+func randStringBytes(n int) string {
 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 	b := make([]byte, n)

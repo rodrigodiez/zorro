@@ -6,32 +6,32 @@ import (
 
 type memory struct {
 	mutex *sync.Mutex
-	f     map[string]string
-	b     map[string]string
+	k     map[string]string
+	v     map[string]string
 }
 
-func (m *memory) LoadOrStore(id string, mask string) (actualMask string, loaded bool) {
+func (m *memory) LoadOrStore(key string, value string) (actualValue string, loaded bool) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	actual, ok := m.f[id]
+	actual, ok := m.k[key]
 
 	if ok {
 		return actual, true
 	}
 
-	m.f[id], m.b[mask] = mask, id
+	m.k[key], m.v[value] = value, key
 
-	return mask, false
+	return value, false
 }
 
-func (m *memory) Resolve(mask string) (id string, ok bool) {
+func (m *memory) Resolve(value string) (key string, ok bool) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	id, ok = m.b[mask]
+	key, ok = m.v[value]
 
-	return id, ok
+	return key, ok
 }
 
 // NewInMemoryStorage creates a new Storage that lives in memory.
@@ -41,7 +41,7 @@ func (m *memory) Resolve(mask string) (id string, ok bool) {
 func NewInMemoryStorage() Storage {
 	return &memory{
 		mutex: &sync.Mutex{},
-		f:     make(map[string]string),
-		b:     make(map[string]string),
+		k:     make(map[string]string),
+		v:     make(map[string]string),
 	}
 }

@@ -33,8 +33,8 @@ func TestMask(t *testing.T) {
 			generator.On("Generate", tc.key).Return(tc.value).Once()
 			storage.On("LoadOrStore", tc.key, tc.value).Return(tc.actual, tc.loaded).Once()
 
-			masked := zorro.Mask(tc.key)
-			assert.Equal(t, tc.actual, masked)
+			value := zorro.Mask(tc.key)
+			assert.Equal(t, tc.actual, value)
 
 			storage.AssertExpectations(t)
 		})

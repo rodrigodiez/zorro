@@ -9,6 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewBoltImplementsStorageCloser(t *testing.T) {
+	var storage StorageCloser
+
+	path := getTmpPath()
+	defer os.Remove(path)
+
+	storage, _ = NewBoltDBStorage(path)
+	storage.Close()
+}
+
 func TestNewBoltReturnsErrIfCantOpen(t *testing.T) {
 	storage, err := NewBoltDBStorage("/a/path/that/does/not/exist")
 
@@ -20,7 +30,7 @@ func TestCloseClosesTheDB(t *testing.T) {
 	t.Skip("Not sure how to do this yet")
 }
 
-func TestNewBoltCreatesIdsAndMAsksBuckets(t *testing.T) {
+func TestNewBoltCreatesKeysAndValuesBuckets(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
@@ -29,11 +39,11 @@ func TestNewBoltCreatesIdsAndMAsksBuckets(t *testing.T) {
 
 	db, _ := bolt.Open(path, 0600, nil)
 	db.View(func(tx *bolt.Tx) error {
-		bIds := tx.Bucket([]byte("ids"))
-		bMasks := tx.Bucket([]byte("masks"))
+		bKeys := tx.Bucket([]byte("keys"))
+		bValues := tx.Bucket([]byte("values"))
 
-		assert.NotNil(t, bIds, "ids bucket does not exist")
-		assert.NotNil(t, bMasks, "masks bucket does not exist")
+		assert.NotNil(t, bKeys, "keys bucket does not exist")
+		assert.NotNil(t, bValues, "values bucket does not exist")
 
 		return nil
 	})
@@ -41,20 +51,20 @@ func TestNewBoltCreatesIdsAndMAsksBuckets(t *testing.T) {
 	db.Close()
 }
 
-func TestBoltLoadOrStoreReTestturnsMaskAndFalseIfIdDoesNotExist(t *testing.T) {
+func TestBoltLoadOrStoreReTestturnsValueAndFalseIfIdDoesNotExist(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
 	storage, _ := NewBoltDBStorage(path)
 	defer storage.Close()
 
-	mask, loaded := storage.LoadOrStore("foo", "bar")
+	value, loaded := storage.LoadOrStore("foo", "bar")
 
-	assert.Equal(t, "bar", mask)
+	assert.Equal(t, "bar", value)
 	assert.Equal(t, false, loaded)
 }
 
-func TestBoltLoadOrStoreReturnsActualMaskAndTrueIfKeyExists(t *testing.T) {
+func TestBoltLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
@@ -62,23 +72,23 @@ func TestBoltLoadOrStoreReturnsActualMaskAndTrueIfKeyExists(t *testing.T) {
 	defer storage.Close()
 
 	storage.LoadOrStore("foo", "bar")
-	mask, loaded := storage.LoadOrStore("foo", "baz")
+	value, loaded := storage.LoadOrStore("foo", "baz")
 
-	assert.Equal(t, "bar", mask)
+	assert.Equal(t, "bar", value)
 	assert.Equal(t, true, loaded)
 }
 
 func TestBoltResolve(t *testing.T) {
 	tt := []struct {
-		name       string
-		loadedID   string
-		loadedMask string
-		mask       string
-		expectedID string
-		expectedOk bool
+		name        string
+		loadedID    string
+		loadedValue string
+		value       string
+		expectedID  string
+		expectedOk  bool
 	}{
-		{name: "Id exists", loadedID: "foo", loadedMask: "bar", mask: "bar", expectedID: "foo", expectedOk: true},
-		{name: "Id does not exist", loadedID: "foo", loadedMask: "bar", mask: "baz", expectedID: "", expectedOk: false},
+		{name: "Id exists", loadedID: "foo", loadedValue: "bar", value: "bar", expectedID: "foo", expectedOk: true},
+		{name: "Id does not exist", loadedID: "foo", loadedValue: "bar", value: "baz", expectedID: "", expectedOk: false},
 	}
 
 	for _, tc := range tt {
@@ -89,10 +99,10 @@ func TestBoltResolve(t *testing.T) {
 			storage, _ := NewBoltDBStorage(path)
 			defer storage.Close()
 
-			storage.LoadOrStore(tc.loadedID, tc.loadedMask)
-			id, ok := storage.Resolve(tc.mask)
+			storage.LoadOrStore(tc.loadedID, tc.loadedValue)
+			key, ok := storage.Resolve(tc.value)
 
-			assert.Equal(t, tc.expectedID, id)
+			assert.Equal(t, tc.expectedID, key)
 			assert.Equal(t, tc.expectedOk, ok)
 		})
 	}

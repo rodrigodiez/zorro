@@ -19,12 +19,12 @@ func ExampleNewBoltDBStorage() {
 	defer storage.Close()
 
 	storage.LoadOrStore("foo", "bar")
-	id, _ := storage.Resolve("bar")
+	key, _ := storage.Resolve("bar")
 
-	fmt.Printf("Id for 'bar' is '%s'\n", id)
+	fmt.Printf("Key for 'bar' is '%s'\n", key)
 
 	// Output:
-	// Id for 'bar' is 'foo'
+	// Key for 'bar' is 'foo'
 }
 
 func ExampleNewBoltDBStorage_other() {
@@ -36,20 +36,20 @@ func ExampleNewBoltDBStorage_other() {
 
 	storage.LoadOrStore("foo", "bar")
 
-	mask, loaded := storage.LoadOrStore("foo", "42")
-	id, _ := storage.Resolve("bar")
+	value, loaded := storage.LoadOrStore("foo", "42")
+	key, _ := storage.Resolve("bar")
 
-	fmt.Printf("Mask of 'foo' is '%s'\n", mask)
-	fmt.Printf("Mask of 'foo' was loaded from storage: %t\n", loaded)
-	fmt.Printf("Id for 'bar' is '%s'\n", id)
+	fmt.Printf("Value of 'foo' is '%s'\n", value)
+	fmt.Printf("Value of 'foo' was loaded from storage: %t\n", loaded)
+	fmt.Printf("Key for 'bar' is '%s'\n", key)
 
 	_, ok := storage.Resolve("42")
 
-	fmt.Printf("Id for '42' could be resolved: %t", ok)
+	fmt.Printf("Key for '42' could be resolved: %t", ok)
 
 	// Output:
-	// Mask of 'foo' is 'bar'
-	// Mask of 'foo' was loaded from storage: true
-	// Id for 'bar' is 'foo'
-	// Id for '42' could be resolved: false
+	// Value of 'foo' is 'bar'
+	// Value of 'foo' was loaded from storage: true
+	// Key for 'bar' is 'foo'
+	// Key for '42' could be resolved: false
 }

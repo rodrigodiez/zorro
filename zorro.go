@@ -2,10 +2,10 @@
 // to manage Zorro.
 package zorro
 
-// Zorro is the interface that wraps the methods to mask and unmask ids
+// Zorro is the interface that wraps the methods to mask and unmask keys
 type Zorro interface {
-	Mask(id string) (mask string)
-	Unmask(mask string) (id string, ok bool)
+	Mask(key string) (value string)
+	Unmask(value string) (key string, ok bool)
 }
 
 type zorro struct {
@@ -13,18 +13,18 @@ type zorro struct {
 	storage   Storage
 }
 
-func (t *zorro) Mask(id string) (mask string) {
+func (t *zorro) Mask(key string) (value string) {
 
-	tmpMask := t.generator.Generate(id)
+	tmpValue := t.generator.Generate(key)
 
-	mask, _ = t.storage.LoadOrStore(id, tmpMask)
+	value, _ = t.storage.LoadOrStore(key, tmpValue)
 
-	return mask
+	return value
 }
 
-func (t *zorro) Unmask(mask string) (id string, ok bool) {
+func (t *zorro) Unmask(value string) (key string, ok bool) {
 
-	return t.storage.Resolve(mask)
+	return t.storage.Resolve(value)
 }
 
 // New creates a new Zorro

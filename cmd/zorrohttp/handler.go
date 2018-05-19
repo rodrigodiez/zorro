@@ -9,9 +9,9 @@ import (
 
 func (a *app) maskHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	mask := a.z.Mask(vars["id"])
+	value := a.z.Mask(vars["id"])
 
-	fmt.Fprint(w, mask)
+	fmt.Fprint(w, value)
 
 	return
 }
@@ -19,7 +19,7 @@ func (a *app) maskHandler(w http.ResponseWriter, r *http.Request) {
 func (a *app) unmaskHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	id, ok := a.z.Unmask(vars["mask"])
+	id, ok := a.z.Unmask(vars["value"])
 
 	if !ok {
 		http.Error(w, "Not Found", http.StatusNotFound)
