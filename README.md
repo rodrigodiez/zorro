@@ -1,6 +1,8 @@
 # Zorro
 
-[![build](https://travis-ci.org/rodrigodiez/zorro.svg?branch=master)](https://travis-ci.org/rodrigodiez/zorro)
+[![build](	https://img.shields.io/travis/rodrigodiez/zorro.svg)](https://travis-ci.org/rodrigodiez/zorro)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rodrigodiez/zorro)](https://goreportcard.com/report/github.com/rodrigodiez/zorro)
+[![MIT License](https://img.shields.io/github/license/rodrigodiez/zorro.svg)](https://github.com/rodrigodiez/zorro/blob/master/LICENSE.md)
 
 Zorro allows developers to perform two way key/value lookups.
 

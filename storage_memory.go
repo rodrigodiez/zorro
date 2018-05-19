@@ -36,7 +36,7 @@ func (m *memory) Resolve(value string) (key string, ok bool) {
 
 // NewInMemoryStorage creates a new Storage that lives in memory.
 //
-// This type of storage is intented for testing and demonstration purposes only.
+// This type of storage is intended for testing and demonstration purposes only.
 // Although the implementation is safe for concurrent use, it is not persisted.
 func NewInMemoryStorage() Storage {
 	return &memory{
