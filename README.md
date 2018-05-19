@@ -2,6 +2,7 @@
 
 [![build](	https://img.shields.io/travis/rodrigodiez/zorro.svg)](https://travis-ci.org/rodrigodiez/zorro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rodrigodiez/zorro)](https://goreportcard.com/report/github.com/rodrigodiez/zorro)
+[![](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/rodrigodiez/zorro)
 [![](https://images.microbadger.com/badges/image/rodrigodiez/zorrohttp.svg)](https://microbadger.com/images/rodrigodiez/zorrohttp "Get your own image badge on microbadger.com")
 [![MIT License](https://img.shields.io/github/license/rodrigodiez/zorro.svg)](https://github.com/rodrigodiez/zorro/blob/master/LICENSE.md)
 
@@ -20,26 +21,31 @@ Gopher by [@egonelbre](https://github.com/egonelbre/gophers)
 ## Use cases
 - Services that want to protect their private IDs by translating them to public ones while keeping the ability to translate them back
 
-## Using Zorro as a server
+## Running a Zorro
 
 > At the moment only an http server is available
 
+Easiest way to get your hands into Zorro is by running the docker image for the http server
+
 ```bash
-# Install zorrohttp
-go get -u github.com/rodrigodiez/zorro/cmd/zorrohttp
+# Pull the latest image
+docker pull rodrigodiez/zorrohttp:latest
 
-# Choose your port and storage!
-zorrohttp --port 8080 --storage-driver memory
-zorrohttp --port 8080 --storage-driver boltdb -storage-path /tmp/elzorro.db
+# Run zorro http server with memory storage
+docker run -p 8080:8080 rodrigodiez/zorrohttp:latest --port 8080 --storage-driver memory
 
-# Mask an key
+# Run zorro http server with BoltDB storage
+docker run -p 8080:8080 rodrigodiez/zorrohttp:latest --port 8080 --storage-driver boltdb -storage-path /tmp/elzorro.db
+
+
+# Mask
 curl -X POST http://localhost:8080/mask/<key>
 
-# Unmask a key
+# Unmask
 curl -X POST http://localhost:8080/unmask/<value>
 ```
 
-## Using Zorro as a package
+## Using Zorro as a package in your app
 ```go
 package main
 
