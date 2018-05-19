@@ -1,6 +1,6 @@
 # Zorro
 
-![build](https://travis-ci.org/rodrigodiez/zorro.svg?branch=master)
+[![build](https://travis-ci.org/rodrigodiez/zorro.svg?branch=master)](https://travis-ci.org/rodrigodiez/zorro)
 
 Zorro allows developers to perform two way key/value lookups.
 
