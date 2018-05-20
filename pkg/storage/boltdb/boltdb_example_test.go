@@ -1,4 +1,4 @@
-package zorro
+package boltdb
 
 import (
 	"fmt"
@@ -6,11 +6,11 @@ import (
 	"os"
 )
 
-func ExampleNewBoltDBStorage() {
+func ExampleNew() {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, err := NewBoltDBStorage(path)
+	storage, err := New(path)
 
 	if err != nil {
 		log.Fatal(err)
@@ -27,11 +27,11 @@ func ExampleNewBoltDBStorage() {
 	// Key for 'bar' is 'foo'
 }
 
-func ExampleNewBoltDBStorage_other() {
+func ExampleNew_other() {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := NewBoltDBStorage(path) // We ignore the error this time. Naughty!
+	storage, _ := New(path) // We ignore the error this time. Naughty!
 	defer storage.Close()
 
 	storage.LoadOrStore("foo", "bar")

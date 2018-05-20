@@ -1,4 +1,4 @@
-package zorro
+package generator
 
 // Generator is the interface that wraps the method Generate to create
 // a mask for a given id.

@@ -1,19 +1,20 @@
-package zorro
+package memory
 
 import (
 	"testing"
 
+	"github.com/rodrigodiez/zorro/pkg/storage"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMemoryImplementsStorage(t *testing.T) {
-	var _ Storage = NewInMemoryStorage()
+func TestImplementsStorage(t *testing.T) {
+	var _ storage.Storage = New()
 }
 
 func TestLoadOrStoreReTestturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
 	t.Parallel()
 
-	mem := NewInMemoryStorage()
+	mem := New()
 
 	value, loaded := mem.LoadOrStore("foo", "bar")
 
@@ -21,10 +22,10 @@ func TestLoadOrStoreReTestturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
 	assert.Equal(t, false, loaded)
 }
 
-func TestMemoryLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
+func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 	t.Parallel()
 
-	mem := NewInMemoryStorage()
+	mem := New()
 
 	mem.LoadOrStore("foo", "bar")
 	value, loaded := mem.LoadOrStore("foo", "baz")
@@ -33,7 +34,7 @@ func TestMemoryLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 	assert.Equal(t, true, loaded)
 }
 
-func TestMemoryResolve(t *testing.T) {
+func TestResolve(t *testing.T) {
 	t.Parallel()
 
 	tt := []struct {
@@ -50,7 +51,7 @@ func TestMemoryResolve(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			mem := NewInMemoryStorage()
+			mem := New()
 
 			mem.LoadOrStore(tc.loadedKey, tc.loadedValue)
 			key, ok := mem.Resolve(tc.value)

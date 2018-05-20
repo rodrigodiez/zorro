@@ -1,4 +1,4 @@
-package zorro
+package storage
 
 // Storage is the interface that wraps the methods to load, store and resolve
 // keys and values.
@@ -7,8 +7,8 @@ type Storage interface {
 	Resolve(value string) (key string, ok bool)
 }
 
-// StorageCloser is an interface for Storage that allows shut down of underlying resources
-type StorageCloser interface {
+// Closer is an interface to free up underlying resources
+type Closer interface {
 	Storage
 	Close()
 }

@@ -1,28 +1,29 @@
-package zorro
+package boltdb
 
 import (
 	"github.com/boltdb/bolt"
+	"github.com/rodrigodiez/zorro/pkg/storage"
 )
 
 type boltdb struct {
-	db          *bolt.DB
-	kBucketName []byte
-	vBucketName []byte
+	db           *bolt.DB
+	keysBucket   []byte
+	valuesBucket []byte
 }
 
-// NewBoltDBStorage creates and initialises a new StorageCloser persisted in Bolt.
-func NewBoltDBStorage(path string) (StorageCloser, error) {
+// New creates and initialises a new Closer persisted in Bolt.
+func New(path string) (storage.Closer, error) {
 	db, err := bolt.Open(path, 0600, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	b := &boltdb{db: db, kBucketName: []byte("keys"), vBucketName: []byte("values")}
+	b := &boltdb{db: db, keysBucket: []byte("keys"), valuesBucket: []byte("values")}
 
 	db.Update(func(tx *bolt.Tx) error {
-		tx.CreateBucket(b.kBucketName)
-		tx.CreateBucket(b.vBucketName)
+		tx.CreateBucket(b.keysBucket)
+		tx.CreateBucket(b.valuesBucket)
 
 		return nil
 	})
@@ -37,14 +38,14 @@ func (b *boltdb) Close() {
 func (b *boltdb) LoadOrStore(key string, value string) (actualMask string, loaded bool) {
 
 	b.db.Update(func(tx *bolt.Tx) error {
-		iBucket := tx.Bucket(b.kBucketName)
-		mBucket := tx.Bucket(b.vBucketName)
+		keysBucket := tx.Bucket(b.keysBucket)
+		valuesBucket := tx.Bucket(b.valuesBucket)
 
-		valueBytes := iBucket.Get([]byte(key))
+		valueBytes := keysBucket.Get([]byte(key))
 
 		if valueBytes == nil {
-			iBucket.Put([]byte(key), []byte(value))
-			mBucket.Put([]byte(value), []byte(key))
+			keysBucket.Put([]byte(key), []byte(value))
+			valuesBucket.Put([]byte(value), []byte(key))
 
 			actualMask = value
 			loaded = false
@@ -65,9 +66,9 @@ func (b *boltdb) LoadOrStore(key string, value string) (actualMask string, loade
 
 func (b *boltdb) Resolve(value string) (key string, ok bool) {
 	b.db.View(func(tx *bolt.Tx) error {
-		mBucket := tx.Bucket(b.vBucketName)
+		valuesBucket := tx.Bucket(b.valuesBucket)
 
-		keyBytes := mBucket.Get([]byte(value))
+		keyBytes := valuesBucket.Get([]byte(value))
 
 		if keyBytes == nil {
 			ok = false

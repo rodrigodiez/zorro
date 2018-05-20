@@ -1,6 +1,11 @@
 // Package zorro contains interfaces and concrete implementations
 // to manage Zorro.
-package zorro
+package service
+
+import (
+	"github.com/rodrigodiez/zorro/pkg/generator"
+	"github.com/rodrigodiez/zorro/pkg/storage"
+)
 
 // Zorro is the interface that wraps the methods to mask and unmask keys
 type Zorro interface {
@@ -9,8 +14,8 @@ type Zorro interface {
 }
 
 type zorro struct {
-	generator Generator
-	storage   Storage
+	generator generator.Generator
+	storage   storage.Storage
 }
 
 func (t *zorro) Mask(key string) (value string) {
@@ -28,7 +33,7 @@ func (t *zorro) Unmask(value string) (key string, ok bool) {
 }
 
 // New creates a new Zorro
-func New(g Generator, s Storage) Zorro {
+func New(g generator.Generator, s storage.Storage) Zorro {
 	return &zorro{
 		generator: g,
 		storage:   s,

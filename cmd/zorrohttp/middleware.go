@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/rodrigodiez/zorro"
+	"github.com/rodrigodiez/zorro/pkg/generator/uuid"
 )
 
 type contextKey int
@@ -14,20 +14,13 @@ const (
 	xRequestID contextKey = iota
 )
 
-func (a *app) requestIDGen(f http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), xRequestID, zorro.NewUUIDv4Generator().Generate(""))
-		f(w, r.WithContext(ctx))
-	})
-}
-
 func (a *app) requestID(f http.HandlerFunc) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rID := r.Header.Get("X-Request-ID")
 
 		if rID == "" {
-			rID = zorro.NewUUIDv4Generator().Generate("")
+			rID = uuid.NewV4().Generate("")
 		}
 
 		ctx := context.WithValue(r.Context(), xRequestID, rID)

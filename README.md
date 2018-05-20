@@ -34,9 +34,11 @@ docker pull rodrigodiez/zorrohttp:latest
 # Run zorro http server with memory storage
 docker run -p 8080:8080 rodrigodiez/zorrohttp:latest --port 8080 --storage-driver memory
 
-# Run zorro http server with BoltDB storage
-docker run -p 8080:8080 rodrigodiez/zorrohttp:latest --port 8080 --storage-driver boltdb -storage-path /tmp/elzorro.db
+# Run zorro http server with BoltDB storage (initialises a new db if $BOLTDB_PATH does not exist)
+docker run -p 8080:8080 rodrigodiez/zorrohttp:latest --port 8080 --storage-driver boltdb -storage-path $BOLTDB_PATH
 
+# Run zorro http server with DynamoDB storage (requires tables to configured with the following key {ID: String})
+docker run -p 8080:8080    -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY rodrigodiez/zorrohttp:latest --port 8080 --storage-driver dynamodb -dynamodb-keys-table $DINAMODB_KEYS_TABLE -dynamodb-values-table $DINAMODB_VALUES_TABLE -aws-region $AWS_REGION
 
 # Mask
 curl -X POST http://localhost:8080/mask/<key>
@@ -52,13 +54,15 @@ package main
 import (
 	"fmt"
 
-	"github.com/rodrigodiez/zorro"
+	"github.com/rodrigodiez/zorro/pkg/generator/uuid"
+	"github.com/rodrigodiez/zorro/pkg/service"
+	"github.com/rodrigodiez/zorro/pkg/storage/memory"
 )
 
 func main() {
-	z := zorro.New(
-		zorro.NewUUIDv4Generator(),
-		zorro.NewInMemoryStorage(),
+	z := service.New(
+		uuid.NewV4(),
+		memory.New(),
 	)
 
 	value := z.Mask("foo")
@@ -94,14 +98,12 @@ func main() {
 - [Twirp](https://github.com/twitchtv/twirp) (to-do)
 
 ## Generators
-> Developers can create their own generators
 - UUIDv4
 
 ## Storage
-> Developers can create their own storages
 - In-Memory (available)
 - [Bolt](https://github.com/boltdb/bolt) (available)
-- [DynamoDB](https://aws.amazon.com/dynamodb/) (to-do)
+- [DynamoDB](https://aws.amazon.com/dynamodb/) (available)
 - [Redis](https://redis.io/) (to-do)
 - [MySQL](https://www.mysql.com/) (to-do)
 - Chain (multiple storages) (to-do)

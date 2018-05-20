@@ -1,6 +1,7 @@
-package zorro
+package uuid
 
 import (
+	"github.com/rodrigodiez/zorro/pkg/generator"
 	"github.com/satori/go.uuid"
 )
 
@@ -11,9 +12,9 @@ func (*uuidv4Generator) Generate(_ string) (mask string) {
 	return uuid.NewV4().String()
 }
 
-// NewUUIDv4Generator creates a new Generator that generates UUIDv4 masks.
+// NewV4 creates a new Generator that generates UUIDv4 masks.
 //
 // See: https://en.wikipedia.org/wiki/Universally_unique_identifier
-func NewUUIDv4Generator() Generator {
+func NewV4() generator.Generator {
 	return &uuidv4Generator{}
 }

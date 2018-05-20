@@ -1,9 +1,9 @@
-package zorro
+package service
 
 import (
 	"testing"
 
-	"github.com/rodrigodiez/zorro/mocks"
+	"github.com/rodrigodiez/zorro/lib/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

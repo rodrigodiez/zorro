@@ -1,7 +1,9 @@
-package zorro
+package memory
 
 import (
 	"sync"
+
+	"github.com/rodrigodiez/zorro/pkg/storage"
 )
 
 type memory struct {
@@ -34,11 +36,11 @@ func (m *memory) Resolve(value string) (key string, ok bool) {
 	return key, ok
 }
 
-// NewInMemoryStorage creates a new Storage that lives in memory.
+// New creates a new Storage that lives in memory.
 //
 // This type of storage is intended for testing and demonstration purposes only.
 // Although the implementation is safe for concurrent use, it is not persisted.
-func NewInMemoryStorage() Storage {
+func New() storage.Storage {
 	return &memory{
 		mutex: &sync.RWMutex{},
 		k:     make(map[string]string),

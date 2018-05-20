@@ -1,4 +1,4 @@
-package zorro
+package boltdb
 
 import (
 	"io/ioutil"
@@ -6,25 +6,26 @@ import (
 	"testing"
 
 	"github.com/boltdb/bolt"
+	"github.com/rodrigodiez/zorro/pkg/storage"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewBoltImplementsStorageCloser(t *testing.T) {
-	var storage StorageCloser
+func TestNewImplementsCloser(t *testing.T) {
+	var storage storage.Closer
 
 	t.Parallel()
 
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ = NewBoltDBStorage(path)
+	storage, _ = New(path)
 	storage.Close()
 }
 
-func TestNewBoltReturnsErrIfCantOpen(t *testing.T) {
+func TestNewReturnsErrIfCantOpen(t *testing.T) {
 	t.Parallel()
 
-	storage, err := NewBoltDBStorage("/a/path/that/does/not/exist")
+	storage, err := New("/a/path/that/does/not/exist")
 
 	assert.Nil(t, storage)
 	assert.NotNil(t, err)
@@ -34,13 +35,13 @@ func TestCloseClosesTheDB(t *testing.T) {
 	t.Skip("Not sure how to do this yet")
 }
 
-func TestNewBoltCreatesKeysAndValuesBuckets(t *testing.T) {
+func TestNewCreatesKeysAndValuesBuckets(t *testing.T) {
 	t.Parallel()
 
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := NewBoltDBStorage(path)
+	storage, _ := New(path)
 	storage.Close()
 
 	db, _ := bolt.Open(path, 0600, nil)
@@ -57,13 +58,13 @@ func TestNewBoltCreatesKeysAndValuesBuckets(t *testing.T) {
 	db.Close()
 }
 
-func TestBoltLoadOrStoreReTestturnsValueAndFalseIfIdDoesNotExist(t *testing.T) {
+func TestLoadOrStoreReTestturnsValueAndFalseIfIdDoesNotExist(t *testing.T) {
 	t.Parallel()
 
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := NewBoltDBStorage(path)
+	storage, _ := New(path)
 	defer storage.Close()
 
 	value, loaded := storage.LoadOrStore("foo", "bar")
@@ -72,13 +73,13 @@ func TestBoltLoadOrStoreReTestturnsValueAndFalseIfIdDoesNotExist(t *testing.T) {
 	assert.Equal(t, false, loaded)
 }
 
-func TestBoltLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
+func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 	t.Parallel()
 
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := NewBoltDBStorage(path)
+	storage, _ := New(path)
 	defer storage.Close()
 
 	storage.LoadOrStore("foo", "bar")
@@ -88,7 +89,7 @@ func TestBoltLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 	assert.Equal(t, true, loaded)
 }
 
-func TestBoltResolve(t *testing.T) {
+func TestResolve(t *testing.T) {
 	t.Parallel()
 
 	tt := []struct {
@@ -108,7 +109,7 @@ func TestBoltResolve(t *testing.T) {
 			path := getTmpPath()
 			defer os.Remove(path)
 
-			storage, _ := NewBoltDBStorage(path)
+			storage, _ := New(path)
 			defer storage.Close()
 
 			storage.LoadOrStore(tc.loadedID, tc.loadedValue)

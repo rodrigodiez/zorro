@@ -6,13 +6,13 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/rodrigodiez/zorro"
+	"github.com/rodrigodiez/zorro/pkg/service"
 )
 
 type app struct {
 	port   int
 	router *mux.Router
-	z      zorro.Zorro
+	z      service.Zorro
 }
 
 func (a *app) run() {
