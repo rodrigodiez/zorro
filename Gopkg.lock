@@ -35,8 +35,8 @@
     "service/dynamodb/dynamodbiface",
     "service/sts"
   ]
-  revision = "5f796043d63bfddca929cfbcffce01e5a894aad5"
-  version = "v1.13.52"
+  revision = "cf00d544fc3c02f31e05e8d02444a1325d3a840b"
+  version = "v1.13.53"
 
 [[projects]]
   name = "github.com/boltdb/bolt"
@@ -104,7 +104,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "7c87d13f8e835d2fb3a70a2912c811ed0c1d241b"
+  revision = "7f59abf37be6a6007f075af1bc7f16f137bc176b"
 
 [solve-meta]
   analyzer-name = "dep"

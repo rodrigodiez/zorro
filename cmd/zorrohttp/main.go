@@ -1,6 +1,7 @@
 package main
 
 import (
+	"expvar"
 	"flag"
 	"log"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rodrigodiez/zorro/pkg/generator/uuid"
 	"github.com/rodrigodiez/zorro/pkg/service"
+	"github.com/rodrigodiez/zorro/pkg/service/middleware"
 	"github.com/rodrigodiez/zorro/pkg/storage/boltdb"
 	"github.com/rodrigodiez/zorro/pkg/storage/dynamodb"
 	"github.com/rodrigodiez/zorro/pkg/storage/memory"
@@ -74,9 +76,11 @@ func main() {
 		os.Exit(-1)
 	}
 
+	wrap := middleware.NewCallMetrics(expvar.NewInt("mask calls"))
+
 	a := &app{
 		router: mux.NewRouter(),
-		z:      z,
+		z:      wrap(z),
 		port:   port,
 	}
 
