@@ -75,3 +75,31 @@ func TestUnmask(t *testing.T) {
 		})
 	}
 }
+
+func TestMaskIncrementsMaskOpCounter(t *testing.T) {
+	generator := &mocks.Generator{}
+	storage := &mocks.Storage{}
+	counter := &mocks.IntCounter{}
+
+	generator.On("Generate", "foo").Return("bar").Maybe()
+	storage.On("LoadOrStore", "foo", "bar").Return("bar", false).Maybe()
+
+	zorro := New(generator, storage).WithMetrics(&Metrics{MaskOps: counter})
+	counter.On("Add", int64(1)).Once()
+	zorro.Mask("foo")
+
+	counter.AssertExpectations(t)
+}
+
+func TestUnmaskIncrementsUnmaskOpCounter(t *testing.T) {
+	storage := &mocks.Storage{}
+	counter := &mocks.IntCounter{}
+
+	storage.On("Resolve", "foo").Return("bar", true).Maybe()
+
+	zorro := New(&mocks.Generator{}, storage).WithMetrics(&Metrics{UnmaskOps: counter})
+	counter.On("Add", int64(1)).Once()
+	zorro.Unmask("foo")
+
+	counter.AssertExpectations(t)
+}

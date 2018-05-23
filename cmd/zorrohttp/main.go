@@ -13,7 +13,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rodrigodiez/zorro/pkg/generator/uuid"
 	"github.com/rodrigodiez/zorro/pkg/service"
-	"github.com/rodrigodiez/zorro/pkg/service/middleware"
 	"github.com/rodrigodiez/zorro/pkg/storage/boltdb"
 	"github.com/rodrigodiez/zorro/pkg/storage/dynamodb"
 	"github.com/rodrigodiez/zorro/pkg/storage/memory"
@@ -76,11 +75,16 @@ func main() {
 		os.Exit(-1)
 	}
 
-	wrap := middleware.NewCallMetrics(expvar.NewInt("mask calls"))
+	var maskOps, unmaskOps expvar.Int
+	metricsMap := expvar.NewMap("zorro")
+	metricsMap.Set("maskOps", &maskOps)
+	metricsMap.Set("unmaskOps", &unmaskOps)
+
+	z.WithMetrics(&service.Metrics{MaskOps: &maskOps, UnmaskOps: &unmaskOps})
 
 	a := &app{
 		router: mux.NewRouter(),
-		z:      wrap(z),
+		z:      z,
 		port:   port,
 	}
 
