@@ -3,6 +3,7 @@ package memory
 import (
 	"testing"
 
+	"github.com/rodrigodiez/zorro/lib/mocks"
 	"github.com/rodrigodiez/zorro/pkg/storage"
 	"github.com/stretchr/testify/assert"
 )
@@ -11,7 +12,7 @@ func TestImplementsStorage(t *testing.T) {
 	var _ storage.Storage = New()
 }
 
-func TestLoadOrStoreReTestturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
+func TestLoadOrStoreReturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
 	t.Parallel()
 
 	mem := New()
@@ -60,4 +61,37 @@ func TestResolve(t *testing.T) {
 			assert.Equal(t, tc.expectedOk, ok)
 		})
 	}
+}
+
+func TestLoadOrStoreIncrementsStoreOpsCounterIfKeyDoesNotExist(t *testing.T) {
+	t.Parallel()
+	counter := &mocks.IntCounter{}
+	counter.On("Add", int64(1))
+
+	storage := New().WithMetrics(&storage.Metrics{StoreOps: counter})
+	storage.LoadOrStore("foo", "bar")
+
+	counter.AssertCalled(t, "Add", int64(1))
+}
+
+func TestLoadOrStoreIncrementsLoadOpsCounterIfKeyExists(t *testing.T) {
+	t.Parallel()
+	counter := &mocks.IntCounter{}
+	counter.On("Add", int64(1))
+
+	storage := New().WithMetrics(&storage.Metrics{LoadOps: counter})
+	storage.LoadOrStore("foo", "bar")
+	storage.LoadOrStore("foo", "bar")
+
+	counter.AssertCalled(t, "Add", int64(1))
+}
+func TestResolveIncrementsResolveOpsCounter(t *testing.T) {
+	t.Parallel()
+	counter := &mocks.IntCounter{}
+	counter.On("Add", int64(1))
+
+	storage := New().WithMetrics(&storage.Metrics{ResolveOps: counter})
+	storage.Resolve("bar")
+
+	counter.AssertCalled(t, "Add", int64(1))
 }

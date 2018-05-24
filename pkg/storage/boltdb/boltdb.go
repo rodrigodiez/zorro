@@ -9,6 +9,7 @@ type boltdb struct {
 	db           *bolt.DB
 	keysBucket   []byte
 	valuesBucket []byte
+	metrics      *storage.Metrics
 }
 
 // New creates and initialises a new Closer persisted in Bolt.
@@ -47,6 +48,8 @@ func (b *boltdb) LoadOrStore(key string, value string) (actualMask string, loade
 			keysBucket.Put([]byte(key), []byte(value))
 			valuesBucket.Put([]byte(value), []byte(key))
 
+			b.incrStoreOps()
+
 			actualMask = value
 			loaded = false
 
@@ -55,6 +58,9 @@ func (b *boltdb) LoadOrStore(key string, value string) (actualMask string, loade
 
 		valueBytesCopy := make([]byte, len(valueBytes))
 		copy(valueBytesCopy, valueBytes)
+
+		b.incrLoadOps()
+
 		actualMask = string(valueBytesCopy)
 		loaded = true
 
@@ -69,6 +75,7 @@ func (b *boltdb) Resolve(value string) (key string, ok bool) {
 		valuesBucket := tx.Bucket(b.valuesBucket)
 
 		keyBytes := valuesBucket.Get([]byte(value))
+		b.incrResolveOps()
 
 		if keyBytes == nil {
 			ok = false
@@ -86,4 +93,28 @@ func (b *boltdb) Resolve(value string) (key string, ok bool) {
 	})
 
 	return key, ok
+}
+
+func (b *boltdb) WithMetrics(metrics *storage.Metrics) storage.Storage {
+	b.metrics = metrics
+
+	return b
+}
+
+func (b *boltdb) incrStoreOps() {
+	if b.metrics != nil && b.metrics.StoreOps != nil {
+		b.metrics.StoreOps.Add(int64(1))
+	}
+}
+
+func (b *boltdb) incrLoadOps() {
+	if b.metrics != nil && b.metrics.LoadOps != nil {
+		b.metrics.LoadOps.Add(int64(1))
+	}
+}
+
+func (b *boltdb) incrResolveOps() {
+	if b.metrics != nil && b.metrics.ResolveOps != nil {
+		b.metrics.ResolveOps.Add(int64(1))
+	}
 }

@@ -14,17 +14,19 @@ func ExampleNew() {
 }
 
 func ExampleNew_with_metrics() {
-	counter := expvar.NewInt("zorro_mask_ops")
+	maskOps := expvar.NewInt("maskOps")
+	unmaskOps := expvar.NewInt("unmaskOps")
 
 	zorro := New(uuid.NewV4(), memory.New())
-	zorro.WithMetrics(&Metrics{MaskOps: counter})
+	zorro.WithMetrics(&Metrics{MaskOps: maskOps, UnmaskOps: unmaskOps})
 
 	zorro.Mask("foo")
-	fmt.Printf("Mask has been called %d times\n", counter.Value())
-	zorro.Mask("bar")
-	fmt.Printf("Mask has been called %d times\n", counter.Value())
+	fmt.Printf("Mask: %d, Unmask: %d\n", maskOps.Value(), unmaskOps.Value())
+
+	zorro.Unmask("bar")
+	fmt.Printf("Mask: %d, Unmask: %d\n", maskOps.Value(), unmaskOps.Value())
 
 	// Output:
-	// Mask has been called 1 times
-	// Mask has been called 2 times
+	// Mask: 1, Unmask: 0
+	// Mask: 1, Unmask: 1
 }

@@ -13,6 +13,7 @@ type dynamodbStorage struct {
 	svc         dynamodbiface.DynamoDBAPI
 	keysTable   string
 	valuesTable string
+	metrics     *storage.Metrics
 }
 
 type item struct {
@@ -36,6 +37,7 @@ func (d *dynamodbStorage) LoadOrStore(key string, value string) (actualValue str
 				actual := &item{}
 				dynamodbattribute.UnmarshalMap(output.Item, actual)
 
+				d.incrLoadOps()
 				return actual.Data, true
 			}
 		}
@@ -43,11 +45,14 @@ func (d *dynamodbStorage) LoadOrStore(key string, value string) (actualValue str
 
 	d.svc.PutItem(newPutItemInput(value, key, d.valuesTable))
 
+	d.incrStoreOps()
 	return value, false
 }
 
 func (d *dynamodbStorage) Resolve(value string) (key string, ok bool) {
 	output, _ := d.svc.GetItem(newGetItemInput(value, d.valuesTable))
+
+	d.incrResolveOps()
 
 	if len(output.Item) == 0 {
 		return "", false
@@ -87,5 +92,29 @@ func newGetItemInput(id string, table string) *dynamodb.GetItemInput {
 		TableName:      aws.String(table),
 		Key:            dynamodbKey,
 		ConsistentRead: aws.Bool(true),
+	}
+}
+
+func (d *dynamodbStorage) WithMetrics(metrics *storage.Metrics) storage.Storage {
+	d.metrics = metrics
+
+	return d
+}
+
+func (d *dynamodbStorage) incrStoreOps() {
+	if d.metrics != nil && d.metrics.StoreOps != nil {
+		d.metrics.StoreOps.Add(int64(1))
+	}
+}
+
+func (d *dynamodbStorage) incrLoadOps() {
+	if d.metrics != nil && d.metrics.LoadOps != nil {
+		d.metrics.LoadOps.Add(int64(1))
+	}
+}
+
+func (d *dynamodbStorage) incrResolveOps() {
+	if d.metrics != nil && d.metrics.ResolveOps != nil {
+		d.metrics.ResolveOps.Add(int64(1))
 	}
 }

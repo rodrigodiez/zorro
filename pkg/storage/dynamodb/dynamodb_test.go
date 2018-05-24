@@ -96,6 +96,60 @@ func TestResolveReturnsEmptyAndFalseIfNotExists(t *testing.T) {
 	svc.AssertExpectations(t)
 }
 
+func TestLoadOrStoreIncrementsStoreOpsIfKeyDoesNotExist(t *testing.T) {
+	t.Parallel()
+
+	counter := &mocks.IntCounter{}
+	counter.On("Add", int64(1))
+	svc := &mocks.DynamoDBAPI{}
+
+	storage := New(svc, "keysTable", "valuesTable").WithMetrics(&storage.Metrics{StoreOps: counter})
+
+	svc.On("PutItem", mock.MatchedBy(func(input *dynamodb.PutItemInput) bool {
+		return *input.TableName == "keysTable" && *input.Item["ID"].S == "foo" && *input.Item["Data"].S == "bar"
+	})).Return(nil, nil).Once()
+
+	svc.On("PutItem", mock.MatchedBy(func(input *dynamodb.PutItemInput) bool {
+		return *input.TableName == "valuesTable" && *input.Item["ID"].S == "bar" && *input.Item["Data"].S == "foo"
+	})).Return(nil, nil).Once()
+
+	storage.LoadOrStore("foo", "bar")
+
+	counter.AssertCalled(t, "Add", int64(1))
+}
+
+func TestLoadOrStoreIncrementsLoadOpsIfKeyExists(t *testing.T) {
+	t.Parallel()
+
+	counter := &mocks.IntCounter{}
+	counter.On("Add", int64(1))
+	svc := &mocks.DynamoDBAPI{}
+
+	storage := New(svc, "keysTable", "valuesTable").WithMetrics(&storage.Metrics{LoadOps: counter})
+
+	svc.On("PutItem", mock.Anything).Return(nil, awserr.New(dynamodb.ErrCodeConditionalCheckFailedException, "", nil)).Maybe()
+	svc.On("GetItem", mock.Anything).Return(newPutItemOutput("foo", "baz"), nil).Maybe()
+
+	storage.LoadOrStore("foo", "bar")
+
+	counter.AssertCalled(t, "Add", int64(1))
+}
+
+func TestResolveIncrementsResolveOps(t *testing.T) {
+	t.Parallel()
+
+	counter := &mocks.IntCounter{}
+	counter.On("Add", int64(1))
+
+	svc := &mocks.DynamoDBAPI{}
+	storage := New(svc, "keysTable", "valuesTable").WithMetrics(&storage.Metrics{ResolveOps: counter})
+	svc.On("GetItem", mock.Anything).Return(&dynamodb.GetItemOutput{Item: make(map[string]*dynamodb.AttributeValue)}, nil).Once()
+
+	storage.Resolve("bar")
+
+	counter.AssertCalled(t, "Add", int64(1))
+}
+
 func newPutItemOutput(id string, data string) *dynamodb.GetItemOutput {
 	item := &item{ID: id, Data: data}
 	dynamodbItem, _ := dynamodbattribute.MarshalMap(item)

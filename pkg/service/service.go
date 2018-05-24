@@ -4,8 +4,18 @@ package service
 
 import (
 	"github.com/rodrigodiez/zorro/pkg/generator"
+	"github.com/rodrigodiez/zorro/pkg/metrics"
 	"github.com/rodrigodiez/zorro/pkg/storage"
 )
+
+// Metrics contains references to user provided metrics
+//
+// MaskOps: Number of times Mask() has been called
+// UnmaskOps: Number of times Unmask() has been called
+type Metrics struct {
+	MaskOps   metrics.IntCounter
+	UnmaskOps metrics.IntCounter
+}
 
 // Middleware is an interface to wrap calls to Zorro service
 type Middleware func(Zorro) Zorro
@@ -58,4 +68,11 @@ func New(g generator.Generator, s storage.Storage) Zorro {
 		generator: g,
 		storage:   s,
 	}
+}
+
+// WithMetrics allows user to configure Zorro to emit operational metrics
+func (z *zorro) WithMetrics(m *Metrics) Zorro {
+	z.metrics = m
+
+	return z
 }
