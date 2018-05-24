@@ -90,8 +90,6 @@ func main() {
 - BatchUnmask (to-do)
 
 ## Servers
-> Developers can create their own servers
-
 - HTTP (available)
 - HTTPS (to-do)
 - [GRPC](https://grpc.io/) (to-do)
@@ -107,6 +105,36 @@ func main() {
 - [Redis](https://redis.io/) (to-do)
 - [MySQL](https://www.mysql.com/) (to-do)
 - Chain (multiple storages) (to-do)
+
+# Metrics
+Zorro can emit some internal metrics
+
+```go
+package main
+
+import (
+	"expvar"
+
+	"github.com/rodrigodiez/zorro/pkg/generator/uuid"
+	"github.com/rodrigodiez/zorro/pkg/service"
+	"github.com/rodrigodiez/zorro/pkg/storage"
+	"github.com/rodrigodiez/zorro/pkg/storage/memory"
+)
+
+func main() {
+	service.New(
+		uuid.NewV4(),
+		memory.New().WithMetrics(&storage.Metrics{
+			LoadOps:    expvar.NewInt("loadOps"),
+			StoreOps:   expvar.NewInt("storeOps"),
+			ResolveOps: expvar.NewInt("resolveOps"),
+		}),
+	).WithMetrics(&service.Metrics{
+		MaskOps:   expvar.NewInt("maskOps"),
+		UnmaskOps: expvar.NewInt("unmaskOps"),
+	})
+}
+```
 
 ## Contributing
 If you want to contribute to the development of Zorro you are more than welcome!

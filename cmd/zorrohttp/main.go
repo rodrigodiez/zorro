@@ -1,6 +1,7 @@
 package main
 
 import (
+	"expvar"
 	"flag"
 	"log"
 	"os"
@@ -73,6 +74,13 @@ func main() {
 		flag.Usage()
 		os.Exit(-1)
 	}
+
+	var maskOps, unmaskOps expvar.Int
+	metricsMap := expvar.NewMap("zorro")
+	metricsMap.Set("maskOps", &maskOps)
+	metricsMap.Set("unmaskOps", &unmaskOps)
+
+	z.WithMetrics(&service.Metrics{MaskOps: &maskOps, UnmaskOps: &unmaskOps})
 
 	a := &app{
 		router: mux.NewRouter(),

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/boltdb/bolt"
+	"github.com/rodrigodiez/zorro/lib/mocks"
 	"github.com/rodrigodiez/zorro/pkg/storage"
 	"github.com/stretchr/testify/assert"
 )
@@ -119,6 +120,60 @@ func TestResolve(t *testing.T) {
 			assert.Equal(t, tc.expectedOk, ok)
 		})
 	}
+}
+
+func TestLoadOrStoreIncrementsStoreOpsIfKeyDoesNotExist(t *testing.T) {
+	t.Parallel()
+
+	counter := &mocks.IntCounter{}
+	counter.On("Add", int64(1))
+
+	path := getTmpPath()
+	defer os.Remove(path)
+
+	bolt, _ := New(path)
+	bolt.WithMetrics(&storage.Metrics{StoreOps: counter})
+	defer bolt.Close()
+
+	bolt.LoadOrStore("foo", "bar")
+
+	counter.AssertCalled(t, "Add", int64(1))
+}
+
+func TestLoadOrStoreIncrementsLoadOpsIfKeyExists(t *testing.T) {
+	t.Parallel()
+
+	counter := &mocks.IntCounter{}
+	counter.On("Add", int64(1))
+
+	path := getTmpPath()
+	defer os.Remove(path)
+
+	bolt, _ := New(path)
+	bolt.WithMetrics(&storage.Metrics{LoadOps: counter})
+	defer bolt.Close()
+
+	bolt.LoadOrStore("foo", "bar")
+	bolt.LoadOrStore("foo", "bar")
+
+	counter.AssertCalled(t, "Add", int64(1))
+}
+func TestResolveIncrementsResolveOps(t *testing.T) {
+	t.Parallel()
+
+	counter := &mocks.IntCounter{}
+	counter.On("Add", int64(1))
+
+	path := getTmpPath()
+	defer os.Remove(path)
+
+	bolt, _ := New(path)
+	bolt.WithMetrics(&storage.Metrics{ResolveOps: counter})
+	defer bolt.Close()
+
+	bolt.Resolve("bar")
+
+	counter.AssertCalled(t, "Add", int64(1))
 }
 
 func getTmpPath() string {
