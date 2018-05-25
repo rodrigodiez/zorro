@@ -59,9 +59,9 @@ go get -u github.com/rodrigodiez/zorro/...
 - BatchUnmask
 
 ## Servers
-- HTTP (available as `zorro-http`)
+- HTTP (available `zorro-http`)
+- [GRPC](https://grpc.io/) (available `zorro-grpc`, not tls support yet)
 - HTTPS (to-do)
-- [GRPC](https://grpc.io/) (to-do)
 - [Twirp](https://github.com/twitchtv/twirp) (to-do)
 
 ## Masking strategies
