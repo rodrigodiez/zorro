@@ -63,8 +63,6 @@ curl http://localhost:8080/debug/vars
 ```
 
 ## gRPC example
-> At the moment tls is not supported, so make sure to connect
-
 ```
 # Same storage options as zorro-http are accepted, we omit them here for simplicity
 
