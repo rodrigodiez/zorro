@@ -3,14 +3,16 @@ package service
 import (
 	"testing"
 
-	"github.com/rodrigodiez/zorro/lib/mocks"
+	generatorMocks "github.com/rodrigodiez/zorro/lib/mocks/generator"
+	metricsMocks "github.com/rodrigodiez/zorro/lib/mocks/metrics"
+	storageMocks "github.com/rodrigodiez/zorro/lib/mocks/storage"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewReturnsZorro(t *testing.T) {
 	t.Parallel()
 
-	var _ Zorro = New(&mocks.Generator{}, &mocks.Storage{})
+	var _ Zorro = New(&generatorMocks.Generator{}, &storageMocks.Storage{})
 }
 
 func TestMask(t *testing.T) {
@@ -29,8 +31,8 @@ func TestMask(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			generator := &mocks.Generator{}
-			storage := &mocks.Storage{}
+			generator := &generatorMocks.Generator{}
+			storage := &storageMocks.Storage{}
 
 			zorro := New(generator, storage)
 
@@ -60,9 +62,9 @@ func TestUnmask(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			storage := &mocks.Storage{}
+			storage := &storageMocks.Storage{}
 
-			zorro := New(&mocks.Generator{}, storage)
+			zorro := New(&generatorMocks.Generator{}, storage)
 
 			storage.On("Resolve", tc.value).Return(tc.key, tc.ok).Once()
 
@@ -77,9 +79,9 @@ func TestUnmask(t *testing.T) {
 }
 
 func TestMaskIncrementsMaskOpCounter(t *testing.T) {
-	generator := &mocks.Generator{}
-	storage := &mocks.Storage{}
-	counter := &mocks.IntCounter{}
+	generator := &generatorMocks.Generator{}
+	storage := &storageMocks.Storage{}
+	counter := &metricsMocks.IntCounter{}
 
 	generator.On("Generate", "foo").Return("bar").Maybe()
 	storage.On("LoadOrStore", "foo", "bar").Return("bar", false).Maybe()
@@ -92,12 +94,12 @@ func TestMaskIncrementsMaskOpCounter(t *testing.T) {
 }
 
 func TestUnmaskIncrementsUnmaskOpCounter(t *testing.T) {
-	storage := &mocks.Storage{}
-	counter := &mocks.IntCounter{}
+	storage := &storageMocks.Storage{}
+	counter := &metricsMocks.IntCounter{}
 
 	storage.On("Resolve", "foo").Return("bar", true).Maybe()
 
-	zorro := New(&mocks.Generator{}, storage).WithMetrics(&Metrics{UnmaskOps: counter})
+	zorro := New(&generatorMocks.Generator{}, storage).WithMetrics(&Metrics{UnmaskOps: counter})
 	counter.On("Add", int64(1)).Once()
 	zorro.Unmask("foo")
 

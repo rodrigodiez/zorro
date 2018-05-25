@@ -8,6 +8,13 @@ import (
 	"github.com/rodrigodiez/zorro/pkg/storage"
 )
 
+// Zorro is the interface that wraps the methods to mask and unmask keys
+type Zorro interface {
+	Mask(key string) (value string)
+	Unmask(value string) (key string, ok bool)
+	WithMetrics(*Metrics) Zorro
+}
+
 // Metrics contains references to user provided metrics
 //
 // MaskOps: Number of times Mask() has been called
@@ -15,16 +22,6 @@ import (
 type Metrics struct {
 	MaskOps   metrics.IntCounter
 	UnmaskOps metrics.IntCounter
-}
-
-// Middleware is an interface to wrap calls to Zorro service
-type Middleware func(Zorro) Zorro
-
-// Zorro is the interface that wraps the methods to mask and unmask keys
-type Zorro interface {
-	Mask(key string) (value string)
-	Unmask(value string) (key string, ok bool)
-	WithMetrics(*Metrics) Zorro
 }
 
 type zorro struct {
@@ -70,7 +67,7 @@ func New(g generator.Generator, s storage.Storage) Zorro {
 	}
 }
 
-// WithMetrics allows user to configure Zorro to emit operational metrics
+// WithMetrics allows user to configure Zorro to emit metrics
 func (z *zorro) WithMetrics(m *Metrics) Zorro {
 	z.metrics = m
 

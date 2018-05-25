@@ -8,11 +8,6 @@ type Storage interface {
 	LoadOrStore(key string, value string) (string, bool)
 	Resolve(value string) (string, bool)
 	WithMetrics(metrics *Metrics) Storage
-}
-
-// Closer is an interface to free up underlying resources
-type Closer interface {
-	Storage
 	Close()
 }
 
