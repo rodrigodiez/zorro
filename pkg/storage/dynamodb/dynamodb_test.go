@@ -4,23 +4,23 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
-
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/rodrigodiez/zorro/lib/mocks"
+	dynamodbapiMocks "github.com/rodrigodiez/zorro/lib/mocks/dynamodbapi"
+	metricsMocks "github.com/rodrigodiez/zorro/lib/mocks/metrics"
 	"github.com/rodrigodiez/zorro/pkg/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestNewImplementsStorage(t *testing.T) {
-	var _ storage.Storage = New(&mocks.DynamoDBAPI{}, "keysTable", "valuesTable")
+	var _ storage.Storage = New(&dynamodbapiMocks.DynamoDBAPI{}, "keysTable", "valuesTable")
 }
 
 func TestLoadOrStoreReturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
 	t.Parallel()
 
-	svc := &mocks.DynamoDBAPI{}
+	svc := &dynamodbapiMocks.DynamoDBAPI{}
 	storage := New(svc, "keysTable", "valuesTable")
 
 	svc.On("PutItem", mock.MatchedBy(func(input *dynamodb.PutItemInput) bool {
@@ -42,7 +42,7 @@ func TestLoadOrStoreReturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
 func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 	t.Parallel()
 
-	svc := &mocks.DynamoDBAPI{}
+	svc := &dynamodbapiMocks.DynamoDBAPI{}
 	storage := New(svc, "keysTable", "valuesTable")
 
 	svc.On("PutItem", mock.MatchedBy(func(input *dynamodb.PutItemInput) bool {
@@ -64,7 +64,7 @@ func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 func TestResolveReturnsIdAndTrueIfExists(t *testing.T) {
 	t.Parallel()
 
-	svc := &mocks.DynamoDBAPI{}
+	svc := &dynamodbapiMocks.DynamoDBAPI{}
 	storage := New(svc, "keysTable", "valuesTable")
 
 	svc.On("GetItem", mock.MatchedBy(func(input *dynamodb.GetItemInput) bool {
@@ -81,7 +81,7 @@ func TestResolveReturnsIdAndTrueIfExists(t *testing.T) {
 func TestResolveReturnsEmptyAndFalseIfNotExists(t *testing.T) {
 	t.Parallel()
 
-	svc := &mocks.DynamoDBAPI{}
+	svc := &dynamodbapiMocks.DynamoDBAPI{}
 	storage := New(svc, "keysTable", "valuesTable")
 
 	svc.On("GetItem", mock.MatchedBy(func(input *dynamodb.GetItemInput) bool {
@@ -99,9 +99,9 @@ func TestResolveReturnsEmptyAndFalseIfNotExists(t *testing.T) {
 func TestLoadOrStoreIncrementsStoreOpsIfKeyDoesNotExist(t *testing.T) {
 	t.Parallel()
 
-	counter := &mocks.IntCounter{}
+	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
-	svc := &mocks.DynamoDBAPI{}
+	svc := &dynamodbapiMocks.DynamoDBAPI{}
 
 	storage := New(svc, "keysTable", "valuesTable").WithMetrics(&storage.Metrics{StoreOps: counter})
 
@@ -121,9 +121,9 @@ func TestLoadOrStoreIncrementsStoreOpsIfKeyDoesNotExist(t *testing.T) {
 func TestLoadOrStoreIncrementsLoadOpsIfKeyExists(t *testing.T) {
 	t.Parallel()
 
-	counter := &mocks.IntCounter{}
+	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
-	svc := &mocks.DynamoDBAPI{}
+	svc := &dynamodbapiMocks.DynamoDBAPI{}
 
 	storage := New(svc, "keysTable", "valuesTable").WithMetrics(&storage.Metrics{LoadOps: counter})
 
@@ -138,10 +138,10 @@ func TestLoadOrStoreIncrementsLoadOpsIfKeyExists(t *testing.T) {
 func TestResolveIncrementsResolveOps(t *testing.T) {
 	t.Parallel()
 
-	counter := &mocks.IntCounter{}
+	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
-	svc := &mocks.DynamoDBAPI{}
+	svc := &dynamodbapiMocks.DynamoDBAPI{}
 	storage := New(svc, "keysTable", "valuesTable").WithMetrics(&storage.Metrics{ResolveOps: counter})
 	svc.On("GetItem", mock.Anything).Return(&dynamodb.GetItemOutput{Item: make(map[string]*dynamodb.AttributeValue)}, nil).Once()
 

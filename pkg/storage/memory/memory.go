@@ -58,6 +58,9 @@ func (m *memory) WithMetrics(metrics *storage.Metrics) storage.Storage {
 	return m
 }
 
+func (m *memory) Close() {
+}
+
 func (m *memory) incrStoreOps() {
 	if m.metrics != nil && m.metrics.StoreOps != nil {
 		m.metrics.StoreOps.Add(int64(1))

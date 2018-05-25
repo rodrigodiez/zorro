@@ -101,6 +101,9 @@ func (d *dynamodbStorage) WithMetrics(metrics *storage.Metrics) storage.Storage 
 	return d
 }
 
+func (d *dynamodbStorage) Close() {
+}
+
 func (d *dynamodbStorage) incrStoreOps() {
 	if d.metrics != nil && d.metrics.StoreOps != nil {
 		d.metrics.StoreOps.Add(int64(1))

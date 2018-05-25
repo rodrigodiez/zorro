@@ -13,7 +13,7 @@ type boltdb struct {
 }
 
 // New creates and initialises a new Closer persisted in Bolt.
-func New(path string) (storage.Closer, error) {
+func New(path string) (storage.Storage, error) {
 	db, err := bolt.Open(path, 0600, nil)
 
 	if err != nil {

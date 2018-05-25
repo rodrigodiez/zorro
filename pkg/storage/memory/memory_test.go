@@ -3,7 +3,7 @@ package memory
 import (
 	"testing"
 
-	"github.com/rodrigodiez/zorro/lib/mocks"
+	metricsMocks "github.com/rodrigodiez/zorro/lib/mocks/metrics"
 	"github.com/rodrigodiez/zorro/pkg/storage"
 	"github.com/stretchr/testify/assert"
 )
@@ -65,7 +65,7 @@ func TestResolve(t *testing.T) {
 
 func TestLoadOrStoreIncrementsStoreOpsCounterIfKeyDoesNotExist(t *testing.T) {
 	t.Parallel()
-	counter := &mocks.IntCounter{}
+	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
 	storage := New().WithMetrics(&storage.Metrics{StoreOps: counter})
@@ -76,7 +76,7 @@ func TestLoadOrStoreIncrementsStoreOpsCounterIfKeyDoesNotExist(t *testing.T) {
 
 func TestLoadOrStoreIncrementsLoadOpsCounterIfKeyExists(t *testing.T) {
 	t.Parallel()
-	counter := &mocks.IntCounter{}
+	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
 	storage := New().WithMetrics(&storage.Metrics{LoadOps: counter})
@@ -87,7 +87,7 @@ func TestLoadOrStoreIncrementsLoadOpsCounterIfKeyExists(t *testing.T) {
 }
 func TestResolveIncrementsResolveOpsCounter(t *testing.T) {
 	t.Parallel()
-	counter := &mocks.IntCounter{}
+	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
 	storage := New().WithMetrics(&storage.Metrics{ResolveOps: counter})

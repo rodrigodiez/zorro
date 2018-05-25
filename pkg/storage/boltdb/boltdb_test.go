@@ -6,13 +6,13 @@ import (
 	"testing"
 
 	"github.com/boltdb/bolt"
-	"github.com/rodrigodiez/zorro/lib/mocks"
+	metricsMocks "github.com/rodrigodiez/zorro/lib/mocks/metrics"
 	"github.com/rodrigodiez/zorro/pkg/storage"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewImplementsCloser(t *testing.T) {
-	var storage storage.Closer
+func TestNewImplementsStorage(t *testing.T) {
+	var storage storage.Storage
 
 	t.Parallel()
 
@@ -22,7 +22,6 @@ func TestNewImplementsCloser(t *testing.T) {
 	storage, _ = New(path)
 	storage.Close()
 }
-
 func TestNewReturnsErrIfCantOpen(t *testing.T) {
 	t.Parallel()
 
@@ -125,7 +124,7 @@ func TestResolve(t *testing.T) {
 func TestLoadOrStoreIncrementsStoreOpsIfKeyDoesNotExist(t *testing.T) {
 	t.Parallel()
 
-	counter := &mocks.IntCounter{}
+	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
 	path := getTmpPath()
@@ -143,7 +142,7 @@ func TestLoadOrStoreIncrementsStoreOpsIfKeyDoesNotExist(t *testing.T) {
 func TestLoadOrStoreIncrementsLoadOpsIfKeyExists(t *testing.T) {
 	t.Parallel()
 
-	counter := &mocks.IntCounter{}
+	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
 	path := getTmpPath()
@@ -161,7 +160,7 @@ func TestLoadOrStoreIncrementsLoadOpsIfKeyExists(t *testing.T) {
 func TestResolveIncrementsResolveOps(t *testing.T) {
 	t.Parallel()
 
-	counter := &mocks.IntCounter{}
+	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
 	path := getTmpPath()
