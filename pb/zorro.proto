@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package grpc;
+package protobuf;
 
 message MaskRequest {
     string key = 1;

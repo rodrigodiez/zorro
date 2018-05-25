@@ -30,7 +30,7 @@ func (s *server) unmaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain")
 
-	if ok != true {
+	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Not Found"))
 
