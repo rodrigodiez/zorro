@@ -3,7 +3,7 @@
 [![build](	https://img.shields.io/travis/rodrigodiez/zorro.svg)](https://travis-ci.org/rodrigodiez/zorro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rodrigodiez/zorro)](https://goreportcard.com/report/github.com/rodrigodiez/zorro)
 [![](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/rodrigodiez/zorro)
-[![](https://images.microbadger.com/badges/image/rodrigodiez/zorrohttp.svg)](https://microbadger.com/images/rodrigodiez/zorrohttp "Get your own image badge on microbadger.com")
+[![](https://images.microbadger.com/badges/image/rodrigodiez/zorro-http.svg)](https://microbadger.com/images/rodrigodiez/zorro-http "Get your own image badge on microbadger.com")
 [![MIT License](https://img.shields.io/github/license/rodrigodiez/zorro.svg)](https://github.com/rodrigodiez/zorro/blob/master/LICENSE.md)
 
 Zorro is a service that allows masking and unmasking of text over multiple transports with different storage drivers and masking strategies.
