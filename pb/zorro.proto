@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package protobuf;
+
+message MaskRequest {
+    string key = 1;
+}
+
+message MaskResponse {
+    string value = 1;
+}
+
+message UnmaskRequest {
+    string value = 1;
+}
+
+message UnmaskResponse {
+    string key = 1;
+}
+
+service Zorro {
+    rpc Mask(MaskRequest) returns (MaskResponse){}
+    rpc Unmask(UnmaskRequest) returns (UnmaskResponse){}
+}

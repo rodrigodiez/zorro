@@ -50,7 +50,7 @@ func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 	})).Return(nil, awserr.New(dynamodb.ErrCodeConditionalCheckFailedException, "", nil)).Once()
 
 	svc.On("GetItem", mock.MatchedBy(func(input *dynamodb.GetItemInput) bool {
-		return *input.TableName == "keysTable" && *input.Key["ID"].S == "foo" && *input.ConsistentRead == true
+		return *input.TableName == "keysTable" && *input.Key["ID"].S == "foo" && *input.ConsistentRead
 	})).Return(newPutItemOutput("foo", "baz"), nil).Once()
 
 	value, loaded := storage.LoadOrStore("foo", "bar")
@@ -68,7 +68,7 @@ func TestResolveReturnsIdAndTrueIfExists(t *testing.T) {
 	storage := New(svc, "keysTable", "valuesTable")
 
 	svc.On("GetItem", mock.MatchedBy(func(input *dynamodb.GetItemInput) bool {
-		return *input.TableName == "valuesTable" && *input.Key["ID"].S == "bar" && *input.ConsistentRead == true
+		return *input.TableName == "valuesTable" && *input.Key["ID"].S == "bar" && *input.ConsistentRead
 	})).Return(newPutItemOutput("bar", "foo"), nil).Once()
 
 	key, ok := storage.Resolve("bar")
@@ -85,7 +85,7 @@ func TestResolveReturnsEmptyAndFalseIfNotExists(t *testing.T) {
 	storage := New(svc, "keysTable", "valuesTable")
 
 	svc.On("GetItem", mock.MatchedBy(func(input *dynamodb.GetItemInput) bool {
-		return *input.TableName == "valuesTable" && *input.Key["ID"].S == "bar" && *input.ConsistentRead == true
+		return *input.TableName == "valuesTable" && *input.Key["ID"].S == "bar" && *input.ConsistentRead
 	})).Return(&dynamodb.GetItemOutput{Item: make(map[string]*dynamodb.AttributeValue)}, nil).Once()
 
 	key, ok := storage.Resolve("bar")

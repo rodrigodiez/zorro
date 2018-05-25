@@ -45,6 +45,11 @@
   name = "github.com/aws/aws-sdk-go"
   version = "1.13.52"
 
+[[constraint]]
+  name = "google.golang.org/grpc"
+  version = "1.12.0"
+
+
 [prune]
   go-tests = true
   unused-packages = true
