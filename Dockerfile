@@ -8,11 +8,11 @@ WORKDIR /go/src/github.com/rodrigodiez/zorro
 COPY . .
 RUN dep ensure
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -tags netgo -ldflags '-w' -o zorrohttp ./cmd/zorrohttp
+RUN CGO_ENABLED=0 GOOS=linux go build -a -tags netgo -ldflags '-w' -o zorro-http ./cmd/zorro-http
 
 FROM alpine
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 
-COPY --from=builder /go/src/github.com/rodrigodiez/zorro/zorrohttp /zorrohttp
+COPY --from=builder /go/src/github.com/rodrigodiez/zorro/zorro-http /zorro-http
 EXPOSE 8080/tcp
-ENTRYPOINT [ "/zorrohttp" ]
+ENTRYPOINT [ "/zorro-http" ]
