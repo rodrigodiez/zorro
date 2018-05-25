@@ -21,7 +21,6 @@ by [@egonelbre](https://github.com/egonelbre/gophers)
 
 ## Table of contents
 - [Use cases](#use-cases)
-- [Run it](#run-it)
 - [Installation](#installation)
 - [HTTP example](#http-example)
 - [gRPC example](#grpc-example)
@@ -35,32 +34,6 @@ by [@egonelbre](https://github.com/egonelbre/gophers)
 
 ## Use cases
 - Services that want to protect their private IDs
-
-## Run it
-The easiest way to test Zorro if you don't have a Go environment set up is by running Zorro's http server using docker.
-
-```bash
-# Pull the latest image
-docker pull rodrigodiez/zorro-http:latest
-
-# Run zorro http server with memory storage
-docker run -p 8080:8080 rodrigodiez/zorro-http:latest --port 8080 --storage-driver memory --debug
-
-# Run zorro http server with BoltDB storage (initialises a new db if $BOLTDB_PATH does not exist)
-docker run -p 8080:8080 rodrigodiez/zorro-http:latest --port 8080 --storage-driver boltdb -storage-path $BOLTDB_PATH --debug
-
-# Run zorro http server with DynamoDB storage (requires tables to configured with an ID (string) hash key
-docker run -p 8080:8080 -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY rodrigodiez/zorro-http:latest --port 8080 --storage-driver dynamodb -dynamodb-keys-table $DINAMODB_KEYS_TABLE -dynamodb-values-table $DINAMODB_VALUES_TABLE -aws-region $AWS_REGION --debug
-
-# Mask
-curl -X POST http://localhost:8080/mask/<key>
-
-# Unmask
-curl -X POST http://localhost:8080/unmask/<value>
-
-# Metrics
-curl http://localhost:8080/debug/vars
-```
 
 ## Installation
 ```
