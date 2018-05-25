@@ -6,7 +6,7 @@
 [![](https://images.microbadger.com/badges/image/rodrigodiez/zorro-http.svg)](https://microbadger.com/images/rodrigodiez/zorro-http "Get your own image badge on microbadger.com")
 [![MIT License](https://img.shields.io/github/license/rodrigodiez/zorro.svg)](https://github.com/rodrigodiez/zorro/blob/master/LICENSE.md)
 
-Zorro is a service that allows masking and unmasking of text over multiple transports with different storage drivers and masking strategies.
+Zorro is a service that allows masking and unmasking of text over multiple transports, storage drivers and masking strategies.
 
 Zorro comes with some reference servers but can also be used as a package in your own application.
 
