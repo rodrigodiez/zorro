@@ -3,111 +3,120 @@ package datastore_test
 import (
 	"testing"
 
+	goDatastore "cloud.google.com/go/datastore"
 	datastoreMocks "github.com/rodrigodiez/zorro/lib/mocks/storage/datastore"
 	"github.com/rodrigodiez/zorro/pkg/storage"
 	"github.com/rodrigodiez/zorro/pkg/storage/datastore"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestNewImplementsStorage(t *testing.T) {
-	var _ storage.Storage = datastore.New(&datastoreMocks.Client{}, "keyKind", "value")
+	var _ storage.Storage = datastore.New(&datastoreMocks.TranslatorClient{}, "keyKind", "value")
 }
 
-// func TestLoadOrStoreReturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
-// 	t.Parallel()
+func TestLoadOrStoreReturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
+	t.Parallel()
 
-// 	client := &datastoreMocks.Client{}
-// 	tx := &datastoreMocks.Transaction{}
+	translator := &datastoreMocks.TranslatorClient{}
+	tx := &datastoreMocks.Transaction{}
 
-// 	tx.On("Get", mock.Anything, mock.Anything).Return(goDatastore.ErrNoSuchEntity).Maybe()
+	tx.On("Get", mock.Anything, mock.Anything).Return(goDatastore.ErrNoSuchEntity).Maybe()
 
-// 	tx.On("Put", mock.MatchedBy(func(gKey *goDatastore.Key) bool {
-// 		return gKey.Kind == "keyKind" && gKey.Name == "foo"
-// 	}), mock.MatchedBy(func(item *datastore.Item) bool {
-// 		return item.Data == "bar"
-// 	})).Return(&goDatastore.PendingKey{}, nil).Once()
+	tx.On("Put", mock.MatchedBy(func(gKey *goDatastore.Key) bool {
+		return gKey.Kind == "keyKind" && gKey.Name == "foo"
+	}), mock.MatchedBy(func(item *datastore.Item) bool {
+		return item.Data == "bar"
+	})).Return(&goDatastore.PendingKey{}, nil).Once()
 
-// 	sto := datastore.New(client, "keyKind", "valueKind")
+	tx.On("Put", mock.MatchedBy(func(gKey *goDatastore.Key) bool {
+		return gKey.Kind == "valueKind" && gKey.Name == "bar"
+	}), mock.MatchedBy(func(item *datastore.Item) bool {
+		return item.Data == "foo"
+	})).Return(&goDatastore.PendingKey{}, nil).Once()
 
-// 	client.On("RunInTransaction", mock.Anything, mock.Anything).Return(&goDatastore.Commit{}, nil).Run(func(args mock.Arguments) {
-// 		f := args.Get(1).(func(tx goDatastore.Transaction) error)
+	sto := datastore.New(translator, "keyKind", "valueKind")
 
-// 		f(goDatastore.Transaction(tx))
-// 	}).Once()
+	translator.On("RunInTransaction", mock.Anything, mock.Anything).Return(&goDatastore.Commit{}, nil).Run(func(args mock.Arguments) {
+		f := args.Get(1).(func(datastore.Transaction) error)
 
-// 	value, loaded := sto.LoadOrStore("foo", "bar")
+		f(tx)
+	}).Once()
 
-// 	assert.Equal(t, "bar", value)
-// 	assert.False(t, loaded)
-// 	tx.AssertExpectations(t)
-// 	client.AssertExpectations(t)
-// }
+	value, loaded := sto.LoadOrStore("foo", "bar")
 
-// func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
-// 	t.Parallel()
+	assert.Equal(t, "bar", value)
+	assert.False(t, loaded)
+	tx.AssertExpectations(t)
+	translator.AssertExpectations(t)
+}
 
-// 	client := &datastoreMocks.Client{}
-// 	tx := &datastoreMocks.Transaction{}
+func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
+	t.Parallel()
 
-// 	tx.On("Get", mock.MatchedBy(func(gKey *goDatastore.Key) bool {
-// 		return gKey.Kind == "keyKind" && gKey.Name == "foo"
-// 	}), mock.Anything).Return(nil).Run(func(args mock.Arguments) {
-// 		item := args.Get(1).(*datastore.Item)
+	translator := &datastoreMocks.TranslatorClient{}
+	tx := &datastoreMocks.Transaction{}
 
-// 		item.Data = "baz"
-// 	}).Once()
+	tx.On("Get", mock.MatchedBy(func(gKey *goDatastore.Key) bool {
+		return gKey.Kind == "keyKind" && gKey.Name == "foo"
+	}), mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		item := args.Get(1).(*datastore.Item)
 
-// 	sto := datastore.New(client, "keyKind", "valueKind")
+		item.Data = "baz"
+	}).Once()
 
-// 	client.On("RunInTransaction", mock.Anything, mock.Anything).Return(&goDatastore.Commit{}, nil).Run(func(args mock.Arguments) {
-// 		f := args.Get(1).(func(tx datastore.Transaction) error)
+	sto := datastore.New(translator, "keyKind", "valueKind")
 
-// 		f(tx)
-// 	}).Once()
+	translator.On("RunInTransaction", mock.Anything, mock.Anything).Return(&goDatastore.Commit{}, nil).Run(func(args mock.Arguments) {
+		f := args.Get(1).(func(tx datastore.Transaction) error)
 
-// 	value, loaded := sto.LoadOrStore("foo", "bar")
+		f(tx)
+	}).Once()
 
-// 	assert.Equal(t, "baz", value)
-// 	assert.True(t, loaded)
-// 	tx.AssertExpectations(t)
-// 	client.AssertExpectations(t)
-// }
+	value, loaded := sto.LoadOrStore("foo", "bar")
 
-// func TestResolveReturnsKeyAndTrueIfValueFound(t *testing.T) {
-// 	t.Parallel()
+	assert.Equal(t, "baz", value)
+	assert.True(t, loaded)
+	tx.AssertExpectations(t)
+	translator.AssertExpectations(t)
+}
 
-// 	client := &datastoreMocks.Client{}
+func TestResolveReturnsKeyAndTrueIfValueFound(t *testing.T) {
+	t.Parallel()
 
-// 	client.On("Get", mock.Anything, mock.MatchedBy(func(gKey *goDatastore.Key) bool {
-// 		return gKey.Kind == "valueKind" && gKey.Name == "bar"
-// 	}), mock.Anything).Return(nil).Run(func(args mock.Arguments) {
-// 		item := args.Get(2).(*datastore.Item)
+	translator := &datastoreMocks.TranslatorClient{}
 
-// 		item.Data = "foo"
-// 	}).Once()
+	translator.On("Get", mock.Anything, mock.MatchedBy(func(gKey *goDatastore.Key) bool {
+		return gKey.Kind == "valueKind" && gKey.Name == "bar"
+	}), mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		item := args.Get(2).(*datastore.Item)
 
-// 	sto := datastore.New(client, "keyKind", "valueKind")
+		item.Data = "foo"
+	}).Once()
 
-// 	key, ok := sto.Resolve("bar")
+	sto := datastore.New(translator, "keyKind", "valueKind")
 
-// 	assert.Equal(t, "foo", key)
-// 	assert.True(t, ok)
-// 	client.AssertExpectations(t)
-// }
+	key, ok := sto.Resolve("bar")
 
-// func TestResolveReturnsEmptyStringAndFalseIfValueNotFound(t *testing.T) {
-// 	t.Parallel()
+	assert.Equal(t, "foo", key)
+	assert.True(t, ok)
+	translator.AssertExpectations(t)
+}
 
-// 	client := &datastoreMocks.Client{}
+func TestResolveReturnsEmptyStringAndFalseIfValueNotFound(t *testing.T) {
+	t.Parallel()
 
-// 	client.On("Get", mock.Anything, mock.MatchedBy(func(gKey *goDatastore.Key) bool {
-// 		return gKey.Kind == "valueKind" && gKey.Name == "bar"
-// 	}), mock.Anything).Return(goDatastore.ErrNoSuchEntity).Once()
+	translator := &datastoreMocks.TranslatorClient{}
 
-// 	sto := datastore.New(client, "keyKind", "valueKind")
+	translator.On("Get", mock.Anything, mock.MatchedBy(func(gKey *goDatastore.Key) bool {
+		return gKey.Kind == "valueKind" && gKey.Name == "bar"
+	}), mock.Anything).Return(goDatastore.ErrNoSuchEntity).Once()
 
-// 	key, ok := sto.Resolve("bar")
+	sto := datastore.New(translator, "keyKind", "valueKind")
 
-// 	assert.Empty(t, key)
-// 	assert.False(t, ok)
-// 	client.AssertExpectations(t)
-// }
+	key, ok := sto.Resolve("bar")
+
+	assert.Empty(t, key)
+	assert.False(t, ok)
+	translator.AssertExpectations(t)
+}

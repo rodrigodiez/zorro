@@ -6,7 +6,11 @@ import (
 	"golang.org/x/net/context"
 )
 
-type Client interface {
+type Item struct {
+	Data string
+}
+
+type GoogleClient interface {
 	RunInTransaction(context.Context, func(*datastore.Transaction) error, ...datastore.TransactionOption) (*datastore.Commit, error)
 	Get(context.Context, *datastore.Key, interface{}) error
 }
@@ -16,14 +20,33 @@ type Transaction interface {
 	Put(*datastore.Key, interface{}) (*datastore.PendingKey, error)
 }
 
-type datastoreStorage struct {
-	cli       Client
-	keyKind   string
-	valueKind string
+type TranslatorClient interface {
+	RunInTransaction(context.Context, func(Transaction) error, ...datastore.TransactionOption) (*datastore.Commit, error)
+	Get(context.Context, *datastore.Key, interface{}) error
 }
 
-type Item struct {
-	Data string
+type translator struct {
+	client *datastore.Client
+}
+
+func NewTranslator(client *datastore.Client) TranslatorClient {
+	return translator{client: client}
+}
+
+func (t translator) Get(ctx context.Context, key *datastore.Key, dest interface{}) error {
+	return t.client.Get(ctx, key, dest)
+}
+
+func (t translator) RunInTransaction(ctx context.Context, f func(Transaction) error, opts ...datastore.TransactionOption) (*datastore.Commit, error) {
+	return t.client.RunInTransaction(ctx, func(tx *datastore.Transaction) error {
+		return f(tx)
+	}, opts...)
+}
+
+type datastoreStorage struct {
+	client    TranslatorClient
+	keyKind   string
+	valueKind string
 }
 
 func (d *datastoreStorage) LoadOrStore(key string, value string) (string, bool) {
@@ -36,7 +59,7 @@ func (d *datastoreStorage) LoadOrStore(key string, value string) (string, bool) 
 
 	gKey := datastore.NameKey(d.keyKind, key, nil)
 
-	d.cli.RunInTransaction(context.TODO(), func(tx *datastore.Transaction) error {
+	d.client.RunInTransaction(context.TODO(), func(tx Transaction) error {
 
 		if err := tx.Get(gKey, &item); err != datastore.ErrNoSuchEntity {
 			actualValue = item.Data
@@ -61,7 +84,7 @@ func (d *datastoreStorage) Resolve(value string) (string, bool) {
 	var item Item
 	gKey := datastore.NameKey(d.valueKind, value, nil)
 
-	if err := d.cli.Get(context.TODO(), gKey, &item); err != nil {
+	if err := d.client.Get(context.TODO(), gKey, &item); err != nil {
 		return "", false
 	}
 
@@ -75,6 +98,6 @@ func (d *datastoreStorage) WithMetrics(metrics *storage.Metrics) storage.Storage
 	return d
 }
 
-func New(client Client, keyKind string, valueKind string) storage.Storage {
-	return &datastoreStorage{cli: client, keyKind: keyKind, valueKind: valueKind}
+func New(client TranslatorClient, keyKind string, valueKind string) storage.Storage {
+	return &datastoreStorage{client: client, keyKind: keyKind, valueKind: valueKind}
 }

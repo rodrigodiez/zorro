@@ -86,7 +86,7 @@ func GetStorageForOptions(options *Options) (storage.Storage, error) {
 		if err != nil {
 			log.Fatalf("Failed to create client: %v", err)
 		}
-		sto = datastore.New(client, *options.DatastoreKeysKind, *options.DatastoreValuesKind)
+		sto = datastore.New(datastore.NewTranslator(client), *options.DatastoreKeysKind, *options.DatastoreValuesKind)
 	default:
 		return nil, errors.New("Unknown storage driver")
 	}
