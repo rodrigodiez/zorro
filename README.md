@@ -5,9 +5,9 @@
 [![](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/rodrigodiez/zorro)
 [![MIT License](https://img.shields.io/github/license/rodrigodiez/zorro.svg)](https://github.com/rodrigodiez/zorro/blob/master/LICENSE.md)
 
-Zorro is a microservice and a golang package to mask/unmask strings. It supports multiple transports, storage engines and mask generators 
+Zorro is a microservice and a golang package to mask/unmask strings. It supports multiple transports, storage engines and mask generators.
 
-[![gopher](https://github.com/egonelbre/gophers/raw/master/.thumb/vector/superhero/standing.png)](https://github.com/egonelbre/gophers)
+[![gopher](./gopher-zorro.png)](https://github.com/egonelbre/gophers)
 
 ---
 
