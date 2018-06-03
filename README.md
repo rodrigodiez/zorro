@@ -76,19 +76,20 @@ For interacting quickly with the gRPC server you can use a tool like [grpcc](htt
 
 ## Servers
 - HTTP (available `zorro-http`)
-- [GRPC](https://grpc.io/) (available `zorro-grpc`, not tls support yet)
-- HTTPS (coming soon)
-- [Twirp](https://github.com/twitchtv/twirp) (coming soon)
+- [GRPC](https://grpc.io/) :heavy_check_mark: (not tls support yet)
+- HTTPS :soon:
+- [Twirp](https://github.com/twitchtv/twirp) :soon:
 
 ## Mask generators
-- UUIDv4
+- UUIDv4 :heavy_check_mark:
 
 ## Storages
-- In-Memory (available)
-- Bolt (available)
-- DynamoDB (available)
-- Redis (coming soon)
-- MySQL (coming soon)
+- In-Memory :heavy_check_mark:
+- Bolt :heavy_check_mark:
+- DynamoDB :heavy_check_mark:
+- Google Cloud Datastore :heavy_check_mark:
+- Redis :soon:
+- MySQL :soon:
 
 ## Protobuf
 `.proto` files for the gRPC server can be found [here](../blow/master/pb)
