@@ -75,7 +75,7 @@ For interacting quickly with the gRPC server you can use a tool like [grpcc](htt
 > Important: at the moment TLS is not supported so make sure to use your client in `insecure` mode.
 
 ## Servers
-- HTTP (available `zorro-http`)
+- HTTP :heavy_check_mark:
 - [GRPC](https://grpc.io/) :heavy_check_mark: (not tls support yet)
 - HTTPS :soon:
 - [Twirp](https://github.com/twitchtv/twirp) :soon:

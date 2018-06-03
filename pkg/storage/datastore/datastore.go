@@ -6,20 +6,18 @@ import (
 	"golang.org/x/net/context"
 )
 
+// Item represents a Google Cloud Datastore entity
 type Item struct {
 	Data string
 }
 
-type GoogleClient interface {
-	RunInTransaction(context.Context, func(*datastore.Transaction) error, ...datastore.TransactionOption) (*datastore.Commit, error)
-	Get(context.Context, *datastore.Key, interface{}) error
-}
-
+// Transaction represents a Google Cloud Datastore transaction
 type Transaction interface {
 	Get(*datastore.Key, interface{}) error
 	Put(*datastore.Key, interface{}) (*datastore.PendingKey, error)
 }
 
+// TranslatorClient is a wrapper necessary to write tests around transactions
 type TranslatorClient interface {
 	RunInTransaction(context.Context, func(Transaction) error, ...datastore.TransactionOption) (*datastore.Commit, error)
 	Get(context.Context, *datastore.Key, interface{}) error
@@ -29,6 +27,7 @@ type translator struct {
 	client *datastore.Client
 }
 
+// NewTranslator returns a TranslatorClient
 func NewTranslator(client *datastore.Client) TranslatorClient {
 	return translator{client: client}
 }
@@ -98,6 +97,7 @@ func (d *datastoreStorage) WithMetrics(metrics *storage.Metrics) storage.Storage
 	return d
 }
 
+// New creates a Storage persisted in Google Cloud Datastore
 func New(client TranslatorClient, keyKind string, valueKind string) storage.Storage {
 	return &datastoreStorage{client: client, keyKind: keyKind, valueKind: valueKind}
 }
