@@ -5,13 +5,9 @@
 [![](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/rodrigodiez/zorro)
 [![MIT License](https://img.shields.io/github/license/rodrigodiez/zorro.svg)](https://github.com/rodrigodiez/zorro/blob/master/LICENSE.md)
 
-Zorro is a service that masks and unmasks text using multiple transports, storages and mask generators.
-
-Zorro comes with some reference servers but can also be used as a package in your own application.
+Zorro is a microservice and a golang package to mask/unmask strings. It supports multiple transports, storage engines and mask generators 
 
 [![gopher](https://github.com/egonelbre/gophers/raw/master/.thumb/vector/superhero/standing.png)](https://github.com/egonelbre/gophers)
-
-by [@egonelbre](https://github.com/egonelbre/gophers)
 
 ---
 
@@ -33,7 +29,7 @@ by [@egonelbre](https://github.com/egonelbre/gophers)
 - [License](#License)
 
 ## Use cases
-- Services that want to protect their private IDs
+- Services that want to mask their private IDs while keeping the ability to resolve them later
 
 ## Installation
 ```
