@@ -34,8 +34,8 @@ func main() {
 	sto, err = cli.GetStorageForOptions(options)
 
 	if err != nil {
-		log.Fatal(err)
 		flag.Usage()
+		log.Fatal(err)
 		os.Exit(-1)
 	}
 

@@ -64,6 +64,9 @@ func (d *dynamodbStorage) Resolve(value string) (key string, ok bool) {
 	return actual.Data, true
 }
 
+func (d *dynamodbStorage) Close() {
+}
+
 // New creates a new Storage persisted in AWS DynamoDB.
 func New(svc dynamodbiface.DynamoDBAPI, keysTable string, valuesTable string) storage.Storage {
 	return &dynamodbStorage{
@@ -99,9 +102,6 @@ func (d *dynamodbStorage) WithMetrics(metrics *storage.Metrics) storage.Storage 
 	d.metrics = metrics
 
 	return d
-}
-
-func (d *dynamodbStorage) Close() {
 }
 
 func (d *dynamodbStorage) incrStoreOps() {
