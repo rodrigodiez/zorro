@@ -5,8 +5,8 @@ import "github.com/rodrigodiez/zorro/pkg/metrics"
 // Storage is the interface that wraps the methods to load, store and resolve
 // keys and values.
 type Storage interface {
-	LoadOrStore(key string, value string) (string, bool)
-	Resolve(value string) (string, bool)
+	LoadOrStore(key string, value string) (string, error)
+	Resolve(value string) (string, error)
 	WithMetrics(metrics *Metrics) Storage
 	Close()
 }

@@ -36,7 +36,9 @@ func (b *boltdb) Close() {
 	b.db.Close()
 }
 
-func (b *boltdb) LoadOrStore(key string, value string) (actualMask string, loaded bool) {
+func (b *boltdb) LoadOrStore(key string, value string) (string, error) {
+
+	var actual string
 
 	b.db.Update(func(tx *bolt.Tx) error {
 		keysBucket := tx.Bucket(b.keysBucket)
@@ -50,8 +52,7 @@ func (b *boltdb) LoadOrStore(key string, value string) (actualMask string, loade
 
 			b.incrStoreOps()
 
-			actualMask = value
-			loaded = false
+			actual = value
 
 			return nil
 		}
@@ -61,16 +62,17 @@ func (b *boltdb) LoadOrStore(key string, value string) (actualMask string, loade
 
 		b.incrLoadOps()
 
-		actualMask = string(valueBytesCopy)
-		loaded = true
+		actual = string(valueBytesCopy)
 
 		return nil
 	})
 
-	return actualMask, loaded
+	return actual, nil
 }
 
-func (b *boltdb) Resolve(value string) (key string, ok bool) {
+func (b *boltdb) Resolve(value string) (string, error) {
+	var key string
+
 	b.db.View(func(tx *bolt.Tx) error {
 		valuesBucket := tx.Bucket(b.valuesBucket)
 
@@ -78,7 +80,6 @@ func (b *boltdb) Resolve(value string) (key string, ok bool) {
 		b.incrResolveOps()
 
 		if keyBytes == nil {
-			ok = false
 			key = ""
 
 			return nil
@@ -87,12 +88,11 @@ func (b *boltdb) Resolve(value string) (key string, ok bool) {
 		keyBytesCopy := make([]byte, len(keyBytes))
 		copy(keyBytesCopy, keyBytes)
 		key = string(keyBytesCopy)
-		ok = true
 
 		return nil
 	})
 
-	return key, ok
+	return key, nil
 }
 
 func (b *boltdb) WithMetrics(metrics *storage.Metrics) storage.Storage {

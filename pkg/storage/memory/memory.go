@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/rodrigodiez/zorro/pkg/storage"
@@ -13,7 +14,7 @@ type memory struct {
 	metrics *storage.Metrics
 }
 
-func (m *memory) LoadOrStore(key string, value string) (actualValue string, loaded bool) {
+func (m *memory) LoadOrStore(key string, value string) (string, error) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
@@ -21,23 +22,27 @@ func (m *memory) LoadOrStore(key string, value string) (actualValue string, load
 
 	if ok {
 		m.incrLoadOps()
-		return actual, true
+		return actual, nil
 	}
 
 	m.k[key], m.v[value] = value, key
 	m.incrStoreOps()
 
-	return value, false
+	return value, nil
 }
 
-func (m *memory) Resolve(value string) (key string, ok bool) {
+func (m *memory) Resolve(value string) (string, error) {
 	m.mutex.RLock()
 	defer m.mutex.RUnlock()
 
-	key, ok = m.v[value]
+	key, ok := m.v[value]
 	m.incrResolveOps()
 
-	return key, ok
+	if !ok {
+		return "", errors.New("Key does not exist")
+	}
+
+	return key, nil
 }
 
 // New creates a new Storage that lives in memory.

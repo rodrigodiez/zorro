@@ -1,6 +1,8 @@
 package dynamodb
 
 import (
+	"errors"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -25,7 +27,7 @@ type key struct {
 	ID string
 }
 
-func (d *dynamodbStorage) LoadOrStore(key string, value string) (actualValue string, loaded bool) {
+func (d *dynamodbStorage) LoadOrStore(key string, value string) (string, error) {
 
 	_, err := d.svc.PutItem(newPutItemInput(key, value, d.keysTable))
 
@@ -38,30 +40,35 @@ func (d *dynamodbStorage) LoadOrStore(key string, value string) (actualValue str
 				dynamodbattribute.UnmarshalMap(output.Item, actual)
 
 				d.incrLoadOps()
-				return actual.Data, true
+				return actual.Data, nil
 			}
 		}
+
+		return "", err
 	}
 
 	d.svc.PutItem(newPutItemInput(value, key, d.valuesTable))
 
 	d.incrStoreOps()
-	return value, false
+	return value, nil
 }
 
-func (d *dynamodbStorage) Resolve(value string) (key string, ok bool) {
-	output, _ := d.svc.GetItem(newGetItemInput(value, d.valuesTable))
-
+func (d *dynamodbStorage) Resolve(value string) (string, error) {
+	output, err := d.svc.GetItem(newGetItemInput(value, d.valuesTable))
 	d.incrResolveOps()
 
+	if err != nil {
+		return "", err
+	}
+
 	if len(output.Item) == 0 {
-		return "", false
+		return "", errors.New("Key does not exist")
 	}
 
 	actual := &item{}
 	dynamodbattribute.UnmarshalMap(output.Item, actual)
 
-	return actual.Data, true
+	return actual.Data, nil
 }
 
 func (d *dynamodbStorage) Close() {

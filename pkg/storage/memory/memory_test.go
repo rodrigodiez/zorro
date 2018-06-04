@@ -12,42 +12,42 @@ func TestImplementsStorage(t *testing.T) {
 	var _ storage.Storage = New()
 }
 
-func TestLoadOrStoreReturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
+func TestLoadOrStoreReturnsValueAndNilIfKeyDoesNotExist(t *testing.T) {
 	t.Parallel()
 
 	mem := New()
 
-	value, loaded := mem.LoadOrStore("foo", "bar")
+	value, err := mem.LoadOrStore("foo", "bar")
 
 	assert.Equal(t, "bar", value)
-	assert.Equal(t, false, loaded)
+	assert.Nil(t, err)
 }
 
-func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
+func TestLoadOrStoreReturnsActualValueAndNilIfKeyExists(t *testing.T) {
 	t.Parallel()
 
 	mem := New()
 
 	mem.LoadOrStore("foo", "bar")
-	value, loaded := mem.LoadOrStore("foo", "baz")
+	value, err := mem.LoadOrStore("foo", "baz")
 
 	assert.Equal(t, "bar", value)
-	assert.Equal(t, true, loaded)
+	assert.Nil(t, err)
 }
 
 func TestResolve(t *testing.T) {
 	t.Parallel()
 
 	tt := []struct {
-		name        string
-		loadedKey   string
-		loadedValue string
-		value       string
-		expectedKey string
-		expectedOk  bool
+		name          string
+		loadedKey     string
+		loadedValue   string
+		value         string
+		expectedKey   string
+		expectedError bool
 	}{
-		{name: "Key exists", loadedKey: "foo", loadedValue: "bar", value: "bar", expectedKey: "foo", expectedOk: true},
-		{name: "Key does not exist", loadedKey: "foo", loadedValue: "bar", value: "baz", expectedKey: "", expectedOk: false},
+		{name: "Key exists", loadedKey: "foo", loadedValue: "bar", value: "bar", expectedKey: "foo", expectedError: false},
+		{name: "Key does not exist", loadedKey: "foo", loadedValue: "bar", value: "baz", expectedKey: "", expectedError: true},
 	}
 
 	for _, tc := range tt {
@@ -55,10 +55,14 @@ func TestResolve(t *testing.T) {
 			mem := New()
 
 			mem.LoadOrStore(tc.loadedKey, tc.loadedValue)
-			key, ok := mem.Resolve(tc.value)
+			key, err := mem.Resolve(tc.value)
 
 			assert.Equal(t, tc.expectedKey, key)
-			assert.Equal(t, tc.expectedOk, ok)
+			if tc.expectedError {
+				assert.NotNil(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
 		})
 	}
 }

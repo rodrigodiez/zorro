@@ -58,7 +58,7 @@ func TestNewCreatesKeysAndValuesBuckets(t *testing.T) {
 	db.Close()
 }
 
-func TestLoadOrStoreReTestturnsValueAndFalseIfIdDoesNotExist(t *testing.T) {
+func TestLoadOrStoreReTestturnsValueAndNilIfIdDoesNotExist(t *testing.T) {
 	t.Parallel()
 
 	path := getTmpPath()
@@ -67,13 +67,13 @@ func TestLoadOrStoreReTestturnsValueAndFalseIfIdDoesNotExist(t *testing.T) {
 	storage, _ := New(path)
 	defer storage.Close()
 
-	value, loaded := storage.LoadOrStore("foo", "bar")
+	value, err := storage.LoadOrStore("foo", "bar")
 
 	assert.Equal(t, "bar", value)
-	assert.Equal(t, false, loaded)
+	assert.Nil(t, err)
 }
 
-func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
+func TestLoadOrStoreReturnsActualValueAndNilIfKeyExists(t *testing.T) {
 	t.Parallel()
 
 	path := getTmpPath()
@@ -83,10 +83,10 @@ func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 	defer storage.Close()
 
 	storage.LoadOrStore("foo", "bar")
-	value, loaded := storage.LoadOrStore("foo", "baz")
+	value, err := storage.LoadOrStore("foo", "baz")
 
 	assert.Equal(t, "bar", value)
-	assert.Equal(t, true, loaded)
+	assert.Nil(t, err)
 }
 
 func TestResolve(t *testing.T) {

@@ -10,8 +10,8 @@ import (
 
 // Zorro is the interface that wraps the methods to mask and unmask keys
 type Zorro interface {
-	Mask(key string) (value string)
-	Unmask(value string) (key string, ok bool)
+	Mask(string) (string, error)
+	Unmask(string) (string, error)
 	WithMetrics(*Metrics) Zorro
 }
 
@@ -30,17 +30,17 @@ type zorro struct {
 	metrics   *Metrics
 }
 
-func (z *zorro) Mask(key string) (value string) {
+func (z *zorro) Mask(key string) (string, error) {
 	z.incrMaskOps()
 
 	tmpValue := z.generator.Generate(key)
 
-	value, _ = z.storage.LoadOrStore(key, tmpValue)
+	value, err := z.storage.LoadOrStore(key, tmpValue)
 
-	return value
+	return value, err
 }
 
-func (z *zorro) Unmask(value string) (key string, ok bool) {
+func (z *zorro) Unmask(value string) (string, error) {
 
 	z.incrUnmaskOps()
 
