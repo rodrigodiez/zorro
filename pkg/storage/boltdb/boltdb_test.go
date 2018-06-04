@@ -89,6 +89,22 @@ func TestLoadOrStoreReturnsActualValueAndNilIfKeyExists(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestLoadOrStoreReturnsEmptyStringAndErrIfStorageFails(t *testing.T) {
+	t.Parallel()
+
+	path := getTmpPath()
+	defer os.Remove(path)
+
+	storage, _ := New(path)
+	defer storage.Close()
+
+	storage.LoadOrStore("foo", "bar")
+	value, err := storage.LoadOrStore("foo", "baz")
+
+	assert.Equal(t, "bar", value)
+	assert.Nil(t, err)
+}
+
 func TestResolve(t *testing.T) {
 	t.Parallel()
 
