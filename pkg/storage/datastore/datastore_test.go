@@ -1,6 +1,7 @@
 package datastore_test
 
 import (
+	"errors"
 	"testing"
 
 	goDatastore "cloud.google.com/go/datastore"
@@ -15,7 +16,7 @@ func TestNewImplementsStorage(t *testing.T) {
 	var _ storage.Storage = datastore.New(&datastoreMocks.TranslatorClient{}, "keyKind", "value")
 }
 
-func TestLoadOrStoreReturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
+func TestLoadOrStoreReturnsValueAndNilIfKeyDoesNotExist(t *testing.T) {
 	t.Parallel()
 
 	translator := &datastoreMocks.TranslatorClient{}
@@ -43,15 +44,15 @@ func TestLoadOrStoreReturnsValueAndFalseIfKeyDoesNotExist(t *testing.T) {
 		f(tx)
 	}).Once()
 
-	value, loaded := sto.LoadOrStore("foo", "bar")
+	value, err := sto.LoadOrStore("foo", "bar")
 
 	assert.Equal(t, "bar", value)
-	assert.False(t, loaded)
+	assert.Nil(t, err)
 	tx.AssertExpectations(t)
 	translator.AssertExpectations(t)
 }
 
-func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
+func TestLoadOrStoreReturnsActualValueAndNilIfKeyExists(t *testing.T) {
 	t.Parallel()
 
 	translator := &datastoreMocks.TranslatorClient{}
@@ -73,15 +74,75 @@ func TestLoadOrStoreReturnsActualValueAndTrueIfKeyExists(t *testing.T) {
 		f(tx)
 	}).Once()
 
-	value, loaded := sto.LoadOrStore("foo", "bar")
+	value, err := sto.LoadOrStore("foo", "bar")
 
 	assert.Equal(t, "baz", value)
-	assert.True(t, loaded)
+	assert.Nil(t, err)
 	tx.AssertExpectations(t)
 	translator.AssertExpectations(t)
 }
 
-func TestResolveReturnsKeyAndTrueIfValueFound(t *testing.T) {
+func TestLoadOrStoreReturnsEmptyStringAndErrorIfStorageFailsGetting(t *testing.T) {
+	t.Parallel()
+
+	translator := &datastoreMocks.TranslatorClient{}
+	tx := &datastoreMocks.Transaction{}
+
+	tx.On("Get", mock.MatchedBy(func(gKey *goDatastore.Key) bool {
+		return gKey.Kind == "keyKind" && gKey.Name == "foo"
+	}), mock.Anything).Return(nil).Once()
+
+	sto := datastore.New(translator, "keyKind", "valueKind")
+
+	translator.On("RunInTransaction", mock.Anything, mock.Anything).Return(&goDatastore.Commit{}, errors.New("")).Run(func(args mock.Arguments) {
+		f := args.Get(1).(func(tx datastore.Transaction) error)
+
+		f(tx)
+	}).Once()
+
+	value, err := sto.LoadOrStore("foo", "bar")
+
+	assert.Equal(t, "", value)
+	assert.NotNil(t, err)
+	tx.AssertExpectations(t)
+	translator.AssertExpectations(t)
+}
+
+func TestLoadOrStoreReturnsEmptyStringAndErrorIfStorageFailsPutting(t *testing.T) {
+	t.Parallel()
+
+	translator := &datastoreMocks.TranslatorClient{}
+	tx := &datastoreMocks.Transaction{}
+
+	tx.On("Get", mock.MatchedBy(func(gKey *goDatastore.Key) bool {
+		return gKey.Kind == "keyKind" && gKey.Name == "foo"
+	}), mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+		item := args.Get(1).(*datastore.Item)
+
+		item.Data = "baz"
+	}).Once()
+
+	tx.On("Put", mock.MatchedBy(func(gKey *goDatastore.Key) bool {
+		return gKey.Kind == "keyKind" && gKey.Name == "foo"
+	}), mock.Anything).Return(nil, errors.New("")).Once()
+
+	sto := datastore.New(translator, "keyKind", "valueKind")
+
+	translator.On("RunInTransaction", mock.Anything, mock.Anything).Return(&goDatastore.Commit{}, errors.New("")).Run(func(args mock.Arguments) {
+		f := args.Get(1).(func(tx datastore.Transaction) error)
+
+		f(tx)
+	}).Once()
+
+	value, err := sto.LoadOrStore("foo", "bar")
+
+	assert.Equal(t, "", value)
+	assert.NotNil(t, err)
+	tx.AssertExpectations(t)
+	translator.AssertExpectations(t)
+}
+
+func TestResolveReturnsKeyAndNilIfValueFound(t *testing.T) {
 	t.Parallel()
 
 	translator := &datastoreMocks.TranslatorClient{}
@@ -96,14 +157,14 @@ func TestResolveReturnsKeyAndTrueIfValueFound(t *testing.T) {
 
 	sto := datastore.New(translator, "keyKind", "valueKind")
 
-	key, ok := sto.Resolve("bar")
+	key, err := sto.Resolve("bar")
 
 	assert.Equal(t, "foo", key)
-	assert.True(t, ok)
+	assert.Nil(t, err)
 	translator.AssertExpectations(t)
 }
 
-func TestResolveReturnsEmptyStringAndFalseIfValueNotFound(t *testing.T) {
+func TestResolveReturnsEmptyStringAndErrorIfValueNotFound(t *testing.T) {
 	t.Parallel()
 
 	translator := &datastoreMocks.TranslatorClient{}
@@ -114,9 +175,9 @@ func TestResolveReturnsEmptyStringAndFalseIfValueNotFound(t *testing.T) {
 
 	sto := datastore.New(translator, "keyKind", "valueKind")
 
-	key, ok := sto.Resolve("bar")
+	key, err := sto.Resolve("bar")
 
 	assert.Empty(t, key)
-	assert.False(t, ok)
+	assert.NotNil(t, err)
 	translator.AssertExpectations(t)
 }

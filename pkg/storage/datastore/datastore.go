@@ -24,20 +24,20 @@ type TranslatorClient interface {
 }
 
 type translator struct {
-	client *datastore.Client
+	svc *datastore.Client
 }
 
 // NewTranslator returns a TranslatorClient
-func NewTranslator(client *datastore.Client) TranslatorClient {
-	return translator{client: client}
+func NewTranslator(svc *datastore.Client) TranslatorClient {
+	return translator{svc: svc}
 }
 
 func (t translator) Get(ctx context.Context, key *datastore.Key, dest interface{}) error {
-	return t.client.Get(ctx, key, dest)
+	return t.svc.Get(ctx, key, dest)
 }
 
 func (t translator) RunInTransaction(ctx context.Context, f func(Transaction) error, opts ...datastore.TransactionOption) (*datastore.Commit, error) {
-	return t.client.RunInTransaction(ctx, func(tx *datastore.Transaction) error {
+	return t.svc.RunInTransaction(ctx, func(tx *datastore.Transaction) error {
 		return f(tx)
 	}, opts...)
 }
@@ -48,56 +48,63 @@ type datastoreStorage struct {
 	valueKind string
 }
 
-func (d *datastoreStorage) LoadOrStore(key string, value string) (string, bool) {
+// New creates a Storage persisted in Google Cloud Datastore
+func New(client TranslatorClient, keyKind string, valueKind string) storage.Storage {
+	return &datastoreStorage{client: client, keyKind: keyKind, valueKind: valueKind}
+}
+
+func (sto *datastoreStorage) LoadOrStore(key string, value string) (string, error) {
 
 	var (
 		item        Item
+		err         error
 		actualValue string
-		loaded      bool
 	)
 
-	gKey := datastore.NameKey(d.keyKind, key, nil)
+	gKey := datastore.NameKey(sto.keyKind, key, nil)
 
-	d.client.RunInTransaction(context.TODO(), func(tx Transaction) error {
+	_, err = sto.client.RunInTransaction(context.TODO(), func(tx Transaction) error {
+		var err error
 
-		if err := tx.Get(gKey, &item); err != datastore.ErrNoSuchEntity {
+		if err = tx.Get(gKey, &item); err != datastore.ErrNoSuchEntity {
 			actualValue = item.Data
-			loaded = true
 
+			return nil
+		}
+
+		if err != nil {
 			return err
 		}
 
-		tx.Put(gKey, &Item{Data: value})
-		tx.Put(datastore.NameKey(d.valueKind, value, nil), &Item{Data: key})
+		_, err = tx.Put(gKey, &Item{Data: value})
+		if err != nil {
+			return err
+		}
+		tx.Put(datastore.NameKey(sto.valueKind, value, nil), &Item{Data: key})
 
 		actualValue = value
-		loaded = false
 
 		return nil
 	})
 
-	return actualValue, loaded
+	return actualValue, err
 }
 
-func (d *datastoreStorage) Resolve(value string) (string, bool) {
+func (sto *datastoreStorage) Resolve(value string) (string, error) {
 	var item Item
-	gKey := datastore.NameKey(d.valueKind, value, nil)
+	gKey := datastore.NameKey(sto.valueKind, value, nil)
 
-	if err := d.client.Get(context.TODO(), gKey, &item); err != nil {
-		return "", false
+	if err := sto.client.Get(context.TODO(), gKey, &item); err != nil {
+		return "", err
 	}
 
-	return item.Data, true
+	return item.Data, nil
 }
 
-func (d *datastoreStorage) Close() {
+// Close is noop
+func (sto *datastoreStorage) Close() {
 }
 
-func (d *datastoreStorage) WithMetrics(metrics *storage.Metrics) storage.Storage {
-	return d
-}
-
-// New creates a Storage persisted in Google Cloud Datastore
-func New(client TranslatorClient, keyKind string, valueKind string) storage.Storage {
-	return &datastoreStorage{client: client, keyKind: keyKind, valueKind: valueKind}
+func (sto *datastoreStorage) WithMetrics(metrics *storage.Metrics) storage.Storage {
+	return sto
 }

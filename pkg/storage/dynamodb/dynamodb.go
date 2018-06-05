@@ -11,13 +11,6 @@ import (
 	"github.com/rodrigodiez/zorro/pkg/storage"
 )
 
-type dynamodbStorage struct {
-	svc         dynamodbiface.DynamoDBAPI
-	keysTable   string
-	valuesTable string
-	metrics     *storage.Metrics
-}
-
 type item struct {
 	ID   string
 	Data string
@@ -27,19 +20,35 @@ type key struct {
 	ID string
 }
 
-func (d *dynamodbStorage) LoadOrStore(key string, value string) (string, error) {
+type dynamodbStorage struct {
+	svc         dynamodbiface.DynamoDBAPI
+	keysTable   string
+	valuesTable string
+	metrics     *storage.Metrics
+}
 
-	_, err := d.svc.PutItem(newPutItemInput(key, value, d.keysTable))
+// New creates a new Storage persisted in AWS DynamoDB.
+func New(svc dynamodbiface.DynamoDBAPI, keysTable string, valuesTable string) storage.Storage {
+	return &dynamodbStorage{
+		svc:         svc,
+		keysTable:   keysTable,
+		valuesTable: valuesTable,
+	}
+}
+
+func (sto *dynamodbStorage) LoadOrStore(key string, value string) (string, error) {
+
+	_, err := sto.svc.PutItem(newPutItemInput(key, value, sto.keysTable))
 
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
 			case dynamodb.ErrCodeConditionalCheckFailedException:
-				output, _ := d.svc.GetItem(newGetItemInput(key, d.keysTable))
+				output, _ := sto.svc.GetItem(newGetItemInput(key, sto.keysTable))
 				actual := &item{}
 				dynamodbattribute.UnmarshalMap(output.Item, actual)
 
-				d.incrLoadOps()
+				sto.incrLoadOps()
 				return actual.Data, nil
 			}
 		}
@@ -47,15 +56,15 @@ func (d *dynamodbStorage) LoadOrStore(key string, value string) (string, error) 
 		return "", err
 	}
 
-	d.svc.PutItem(newPutItemInput(value, key, d.valuesTable))
+	sto.svc.PutItem(newPutItemInput(value, key, sto.valuesTable))
 
-	d.incrStoreOps()
+	sto.incrStoreOps()
 	return value, nil
 }
 
-func (d *dynamodbStorage) Resolve(value string) (string, error) {
-	output, err := d.svc.GetItem(newGetItemInput(value, d.valuesTable))
-	d.incrResolveOps()
+func (sto *dynamodbStorage) Resolve(value string) (string, error) {
+	output, err := sto.svc.GetItem(newGetItemInput(value, sto.valuesTable))
+	sto.incrResolveOps()
 
 	if err != nil {
 		return "", err
@@ -71,16 +80,8 @@ func (d *dynamodbStorage) Resolve(value string) (string, error) {
 	return actual.Data, nil
 }
 
-func (d *dynamodbStorage) Close() {
-}
-
-// New creates a new Storage persisted in AWS DynamoDB.
-func New(svc dynamodbiface.DynamoDBAPI, keysTable string, valuesTable string) storage.Storage {
-	return &dynamodbStorage{
-		svc:         svc,
-		keysTable:   keysTable,
-		valuesTable: valuesTable,
-	}
+// Close is noop
+func (sto *dynamodbStorage) Close() {
 }
 
 func newPutItemInput(id string, data string, table string) *dynamodb.PutItemInput {
@@ -105,26 +106,26 @@ func newGetItemInput(id string, table string) *dynamodb.GetItemInput {
 	}
 }
 
-func (d *dynamodbStorage) WithMetrics(metrics *storage.Metrics) storage.Storage {
-	d.metrics = metrics
+func (sto *dynamodbStorage) WithMetrics(metrics *storage.Metrics) storage.Storage {
+	sto.metrics = metrics
 
-	return d
+	return sto
 }
 
-func (d *dynamodbStorage) incrStoreOps() {
-	if d.metrics != nil && d.metrics.StoreOps != nil {
-		d.metrics.StoreOps.Add(int64(1))
+func (sto *dynamodbStorage) incrStoreOps() {
+	if sto.metrics != nil && sto.metrics.StoreOps != nil {
+		sto.metrics.StoreOps.Add(int64(1))
 	}
 }
 
-func (d *dynamodbStorage) incrLoadOps() {
-	if d.metrics != nil && d.metrics.LoadOps != nil {
-		d.metrics.LoadOps.Add(int64(1))
+func (sto *dynamodbStorage) incrLoadOps() {
+	if sto.metrics != nil && sto.metrics.LoadOps != nil {
+		sto.metrics.LoadOps.Add(int64(1))
 	}
 }
 
-func (d *dynamodbStorage) incrResolveOps() {
-	if d.metrics != nil && d.metrics.ResolveOps != nil {
-		d.metrics.ResolveOps.Add(int64(1))
+func (sto *dynamodbStorage) incrResolveOps() {
+	if sto.metrics != nil && sto.metrics.ResolveOps != nil {
+		sto.metrics.ResolveOps.Add(int64(1))
 	}
 }

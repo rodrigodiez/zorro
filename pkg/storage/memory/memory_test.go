@@ -1,23 +1,24 @@
-package memory
+package memory_test
 
 import (
 	"testing"
 
 	metricsMocks "github.com/rodrigodiez/zorro/lib/mocks/metrics"
 	"github.com/rodrigodiez/zorro/pkg/storage"
+	"github.com/rodrigodiez/zorro/pkg/storage/memory"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestImplementsStorage(t *testing.T) {
-	var _ storage.Storage = New()
+	var _ storage.Storage = memory.New()
 }
 
 func TestLoadOrStoreReturnsValueAndNilIfKeyDoesNotExist(t *testing.T) {
 	t.Parallel()
 
-	mem := New()
+	sto := memory.New()
 
-	value, err := mem.LoadOrStore("foo", "bar")
+	value, err := sto.LoadOrStore("foo", "bar")
 
 	assert.Equal(t, "bar", value)
 	assert.Nil(t, err)
@@ -26,10 +27,10 @@ func TestLoadOrStoreReturnsValueAndNilIfKeyDoesNotExist(t *testing.T) {
 func TestLoadOrStoreReturnsActualValueAndNilIfKeyExists(t *testing.T) {
 	t.Parallel()
 
-	mem := New()
+	sto := memory.New()
 
-	mem.LoadOrStore("foo", "bar")
-	value, err := mem.LoadOrStore("foo", "baz")
+	sto.LoadOrStore("foo", "bar")
+	value, err := sto.LoadOrStore("foo", "baz")
 
 	assert.Equal(t, "bar", value)
 	assert.Nil(t, err)
@@ -52,10 +53,10 @@ func TestResolve(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			mem := New()
+			sto := memory.New()
 
-			mem.LoadOrStore(tc.loadedKey, tc.loadedValue)
-			key, err := mem.Resolve(tc.value)
+			sto.LoadOrStore(tc.loadedKey, tc.loadedValue)
+			key, err := sto.Resolve(tc.value)
 
 			assert.Equal(t, tc.expectedKey, key)
 			if tc.expectedError {
@@ -72,8 +73,8 @@ func TestLoadOrStoreIncrementsStoreOpsCounterIfKeyDoesNotExist(t *testing.T) {
 	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
-	storage := New().WithMetrics(&storage.Metrics{StoreOps: counter})
-	storage.LoadOrStore("foo", "bar")
+	sto := memory.New().WithMetrics(&storage.Metrics{StoreOps: counter})
+	sto.LoadOrStore("foo", "bar")
 
 	counter.AssertCalled(t, "Add", int64(1))
 }
@@ -83,9 +84,9 @@ func TestLoadOrStoreIncrementsLoadOpsCounterIfKeyExists(t *testing.T) {
 	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
-	storage := New().WithMetrics(&storage.Metrics{LoadOps: counter})
-	storage.LoadOrStore("foo", "bar")
-	storage.LoadOrStore("foo", "bar")
+	sto := memory.New().WithMetrics(&storage.Metrics{LoadOps: counter})
+	sto.LoadOrStore("foo", "bar")
+	sto.LoadOrStore("foo", "bar")
 
 	counter.AssertCalled(t, "Add", int64(1))
 }
@@ -94,8 +95,8 @@ func TestResolveIncrementsResolveOpsCounter(t *testing.T) {
 	counter := &metricsMocks.IntCounter{}
 	counter.On("Add", int64(1))
 
-	storage := New().WithMetrics(&storage.Metrics{ResolveOps: counter})
-	storage.Resolve("bar")
+	sto := memory.New().WithMetrics(&storage.Metrics{ResolveOps: counter})
+	sto.Resolve("bar")
 
 	counter.AssertCalled(t, "Add", int64(1))
 }

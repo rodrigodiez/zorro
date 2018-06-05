@@ -8,12 +8,12 @@ import (
 )
 
 func ExampleNew_other() {
-	mem := New()
+	sto := New()
 
-	mem.LoadOrStore("foo", "bar")
+	sto.LoadOrStore("foo", "bar")
 
-	value, _ := mem.LoadOrStore("foo", "42")
-	key, _ := mem.Resolve("bar")
+	value, _ := sto.LoadOrStore("foo", "42")
+	key, _ := sto.Resolve("bar")
 
 	fmt.Printf("Value of 'foo' is '%s'\n", value)
 	fmt.Printf("Key for 'bar' is '%s'\n", key)
@@ -24,10 +24,10 @@ func ExampleNew_other() {
 }
 
 func ExampleNew() {
-	mem := New()
+	sto := New()
 
-	mem.LoadOrStore("foo", "bar")
-	key, _ := mem.Resolve("bar")
+	sto.LoadOrStore("foo", "bar")
+	key, _ := sto.Resolve("bar")
 
 	fmt.Printf("Key for 'bar' is '%s'\n", key)
 
@@ -40,16 +40,16 @@ func ExampleNew_with_metrics() {
 	storeOps := expvar.NewInt("storeOps")
 	resolveOps := expvar.NewInt("resolveOps")
 
-	memory := New()
-	memory.WithMetrics(&storage.Metrics{LoadOps: loadOps, StoreOps: storeOps, ResolveOps: resolveOps})
+	sto := New()
+	sto.WithMetrics(&storage.Metrics{LoadOps: loadOps, StoreOps: storeOps, ResolveOps: resolveOps})
 
-	memory.LoadOrStore("foo", "bar")
+	sto.LoadOrStore("foo", "bar")
 	fmt.Printf("Load: %d, Store: %d, Resolve: %d\n", loadOps.Value(), storeOps.Value(), resolveOps.Value())
 
-	memory.LoadOrStore("foo", "bar")
+	sto.LoadOrStore("foo", "bar")
 	fmt.Printf("Load: %d, Store: %d, Resolve: %d\n", loadOps.Value(), storeOps.Value(), resolveOps.Value())
 
-	memory.Resolve("bar")
+	sto.Resolve("bar")
 	fmt.Printf("Load: %d, Store: %d, Resolve: %d\n", loadOps.Value(), storeOps.Value(), resolveOps.Value())
 
 	// Output:

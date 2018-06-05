@@ -7,25 +7,25 @@ import (
 )
 
 func BenchmarkMemory(b *testing.B) {
-	storage := New()
+	sto := New()
 
 	for i := 0; i < b.N; i++ {
 		key := random.NewString(24)
 		value := random.NewString(24)
 
-		storage.LoadOrStore(key, value)
+		sto.LoadOrStore(key, value)
 	}
 }
 
 func BenchmarkMemoryParallel(b *testing.B) {
-	storage := New()
+	sto := New()
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			key := random.NewString(24)
 			value := random.NewString(24)
 
-			storage.LoadOrStore(key, value)
+			sto.LoadOrStore(key, value)
 		}
 	})
 }
