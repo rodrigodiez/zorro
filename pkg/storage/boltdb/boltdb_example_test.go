@@ -1,16 +1,18 @@
-package boltdb
+package boltdb_test
 
 import (
 	"fmt"
 	"log"
 	"os"
+
+	zorroBolt "github.com/rodrigodiez/zorro/pkg/storage/boltdb"
 )
 
 func ExampleNew() {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, err := New(path)
+	storage, err := zorroBolt.New(path)
 
 	if err != nil {
 		log.Fatal(err)
@@ -31,7 +33,7 @@ func ExampleNew_other() {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := New(path) // We ignore the error this time. Naughty!
+	storage, _ := zorroBolt.New(path) // We ignore the error this time. Naughty!
 	defer storage.Close()
 
 	storage.LoadOrStore("foo", "bar")

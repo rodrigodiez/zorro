@@ -1,17 +1,18 @@
-package boltdb
+package boltdb_test
 
 import (
 	"os"
 	"testing"
 
 	"github.com/rodrigodiez/zorro/lib/random"
+	zorroBolt "github.com/rodrigodiez/zorro/pkg/storage/boltdb"
 )
 
 func BenchmarkBoltDb(b *testing.B) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := New(path)
+	storage, _ := zorroBolt.New(path)
 	defer storage.Close()
 
 	for i := 0; i < b.N; i++ {
@@ -26,7 +27,7 @@ func BenchmarkBoltDBParallel(b *testing.B) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := New(path)
+	storage, _ := zorroBolt.New(path)
 	defer storage.Close()
 
 	b.RunParallel(func(pb *testing.PB) {

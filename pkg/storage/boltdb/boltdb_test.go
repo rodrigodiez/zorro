@@ -1,4 +1,4 @@
-package boltdb
+package boltdb_test
 
 import (
 	"io/ioutil"
@@ -8,6 +8,7 @@ import (
 	"github.com/boltdb/bolt"
 	metricsMocks "github.com/rodrigodiez/zorro/lib/mocks/metrics"
 	"github.com/rodrigodiez/zorro/pkg/storage"
+	zorroBolt "github.com/rodrigodiez/zorro/pkg/storage/boltdb"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,13 +20,13 @@ func TestNewImplementsStorage(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ = New(path)
+	storage, _ = zorroBolt.New(path)
 	storage.Close()
 }
 func TestNewReturnsErrIfCantOpen(t *testing.T) {
 	t.Parallel()
 
-	storage, err := New("/a/path/that/does/not/exist")
+	storage, err := zorroBolt.New("/a/path/that/does/not/exist")
 
 	assert.Nil(t, storage)
 	assert.NotNil(t, err)
@@ -41,7 +42,7 @@ func TestNewCreatesKeysAndValuesBuckets(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := New(path)
+	storage, _ := zorroBolt.New(path)
 	storage.Close()
 
 	db, _ := bolt.Open(path, 0600, nil)
@@ -64,7 +65,7 @@ func TestLoadOrStoreReTestturnsValueAndNilIfIdDoesNotExist(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := New(path)
+	storage, _ := zorroBolt.New(path)
 	defer storage.Close()
 
 	value, err := storage.LoadOrStore("foo", "bar")
@@ -79,7 +80,7 @@ func TestLoadOrStoreReturnsActualValueAndNilIfKeyExists(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := New(path)
+	storage, _ := zorroBolt.New(path)
 	defer storage.Close()
 
 	storage.LoadOrStore("foo", "bar")
@@ -95,7 +96,7 @@ func TestLoadOrStoreReturnsEmptyStringAndErrIfStorageFails(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	storage, _ := New(path)
+	storage, _ := zorroBolt.New(path)
 	defer storage.Close()
 
 	storage.LoadOrStore("foo", "bar")
@@ -125,7 +126,7 @@ func TestResolve(t *testing.T) {
 			path := getTmpPath()
 			defer os.Remove(path)
 
-			storage, _ := New(path)
+			storage, _ := zorroBolt.New(path)
 			defer storage.Close()
 
 			storage.LoadOrStore(tc.loadedID, tc.loadedValue)
@@ -146,7 +147,7 @@ func TestLoadOrStoreIncrementsStoreOpsIfKeyDoesNotExist(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	bolt, _ := New(path)
+	bolt, _ := zorroBolt.New(path)
 	bolt.WithMetrics(&storage.Metrics{StoreOps: counter})
 	defer bolt.Close()
 
@@ -164,7 +165,7 @@ func TestLoadOrStoreIncrementsLoadOpsIfKeyExists(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	bolt, _ := New(path)
+	bolt, _ := zorroBolt.New(path)
 	bolt.WithMetrics(&storage.Metrics{LoadOps: counter})
 	defer bolt.Close()
 
@@ -182,7 +183,7 @@ func TestResolveIncrementsResolveOps(t *testing.T) {
 	path := getTmpPath()
 	defer os.Remove(path)
 
-	bolt, _ := New(path)
+	bolt, _ := zorroBolt.New(path)
 	bolt.WithMetrics(&storage.Metrics{ResolveOps: counter})
 	defer bolt.Close()
 

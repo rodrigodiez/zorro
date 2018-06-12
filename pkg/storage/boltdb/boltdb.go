@@ -5,6 +5,24 @@ import (
 	"github.com/rodrigodiez/zorro/pkg/storage"
 )
 
+// Transaction represents a BoltDB transaction
+type Transaction interface {
+	CreateBucket([]byte) (*bolt.Bucket, error)
+	Bucket([]byte) *bolt.Bucket
+}
+
+// Bucket represents a BoltDB bucket
+type Bucket interface {
+	Put([]byte, []byte) error
+	Get(key []byte) []byte
+}
+
+// ClientAdapter is a wrapper necessary to write tests based on interfaces
+type ClientAdapter interface {
+	Update(func(tx Transaction) error) error
+	View(func(tx Transaction) error) error
+}
+
 type boltdb struct {
 	db           *bolt.DB
 	keysBucket   []byte
