@@ -1,64 +1,46 @@
 package boltdb
 
 import (
-	"github.com/boltdb/bolt"
 	"github.com/rodrigodiez/zorro/pkg/storage"
 )
 
-// Transaction represents a BoltDB transaction
-type Transaction interface {
-	CreateBucket([]byte) (*bolt.Bucket, error)
-	Bucket([]byte) *bolt.Bucket
-}
-
-// Bucket represents a BoltDB bucket
-type Bucket interface {
-	Put([]byte, []byte) error
-	Get(key []byte) []byte
-}
-
-// ClientAdapter is a wrapper necessary to write tests based on interfaces
-type ClientAdapter interface {
-	Update(func(tx Transaction) error) error
-	View(func(tx Transaction) error) error
-}
-
 type boltdb struct {
-	db           *bolt.DB
+	adapter      ClientAdapter
 	keysBucket   []byte
 	valuesBucket []byte
 	metrics      *storage.Metrics
 }
 
 // New creates and initialises a new Closer persisted in Bolt.
-func New(path string) (storage.Storage, error) {
-	db, err := bolt.Open(path, 0600, nil)
+func New(adapter ClientAdapter) (storage.Storage, error) {
 
-	if err != nil {
-		return nil, err
-	}
+	b := &boltdb{adapter: adapter, keysBucket: []byte("keys"), valuesBucket: []byte("values")}
 
-	b := &boltdb{db: db, keysBucket: []byte("keys"), valuesBucket: []byte("values")}
-
-	db.Update(func(tx *bolt.Tx) error {
+	err := adapter.Update(func(tx Transaction) error {
 		tx.CreateBucket(b.keysBucket)
 		tx.CreateBucket(b.valuesBucket)
 
 		return nil
 	})
 
+	if err != nil {
+		return nil, err
+	}
+
 	return b, nil
+
 }
 
+// Close closes the underlying storage
 func (b *boltdb) Close() {
-	b.db.Close()
+	b.adapter.Close()
 }
 
 func (b *boltdb) LoadOrStore(key string, value string) (string, error) {
 
 	var actual string
 
-	b.db.Update(func(tx *bolt.Tx) error {
+	b.adapter.Update(func(tx Transaction) error {
 		keysBucket := tx.Bucket(b.keysBucket)
 		valuesBucket := tx.Bucket(b.valuesBucket)
 
@@ -91,7 +73,7 @@ func (b *boltdb) LoadOrStore(key string, value string) (string, error) {
 func (b *boltdb) Resolve(value string) (string, error) {
 	var key string
 
-	b.db.View(func(tx *bolt.Tx) error {
+	b.adapter.View(func(tx Transaction) error {
 		valuesBucket := tx.Bucket(b.valuesBucket)
 
 		keyBytes := valuesBucket.Get([]byte(value))
